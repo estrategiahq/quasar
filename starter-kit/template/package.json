@@ -1,0 +1,61 @@
+{
+
+  "name": "{{ name }}",
+  "version": "0.0.1",
+  "description": "{{ description }}",
+  "productName": "{{ productName }}",
+  "cordovaId": "{{ cordovaId }}",
+  "author": "{{ author }}",
+  "private": true,
+  "scripts": {
+    {{#preset.lint}}"lint": "eslint --ext .js,.vue src",{{/preset.lint}}
+    "test": "npm run test:unit",
+    "test:unit": "jest --updateSnapshot",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:watchAll": "jest --watchAll",
+    "serve:test:coverage": "quasar serve jest/coverage/lcov-report/ --port 8788",
+    "concurrently:dev:jest": "concurrently \"quasar dev\" \"jest --watch\""
+  },
+  "dependencies": {
+    "apollo-boost": "^0.4.4",
+    "apollo-cache-inmemory": "^1.6.3",
+    "apollo-client": "^2.6.4",
+    "apollo-link": "^1.2.13",
+    "apollo-link-http": "^1.5.16",
+    "apollo-link-context": "^1.0.19",
+    "vue-apollo": "^3.0.0-rc.5",
+    "graphql": "^14.5.6",
+    "quasar": "REPO_URL/ui.tar.gz",
+    "@quasar/extras": "REPO_URL/extras.tar.gz",
+    "axios": "^0.19.0"
+  },
+  "devDependencies": {
+    {{#preset.lint}}
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.10.0",
+    "eslint-loader": "^2.1.1",
+    "eslint-plugin-vue": "^5.0.0",
+    {{#if_eq lintConfig "standard"}}
+    "@vue/eslint-config-standard": "^4.0.0",
+    {{/if_eq}}
+    {{#if_eq lintConfig "airbnb"}}
+    "@vue/eslint-config-airbnb": "^4.0.0",
+    {{/if_eq}}
+    {{#if_eq lintConfig "prettier"}}
+    "@vue/eslint-config-prettier": "^4.0.0",
+    {{/if_eq}}
+    {{/preset.lint}}
+    "flush-promises": "^1.0.2",
+    "@quasar/app": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/app.tar.gz",
+    "@quasar/quasar-app-extension-testing-unit-jest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">= 8.9.0",
+    "npm": ">= 5.6.0",
+    "yarn": ">= 1.6.0"
+  },
+  "browserslist": [
+    "last 1 version, not dead, ie >= 11"
+  ]
+}
