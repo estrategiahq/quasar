@@ -82,15 +82,15 @@ module.exports = function (ctx) {
     supportIE: false,
 
     htmlVariables: {
-      buildDate: JSON.stringify(new Date().toISOString()),
-      version: process.env.VERSION ? JSON.stringify(process.env.VERSION) : JSON.stringify('0.0.1')
+      buildDate: new Date().toISOString(),
+      version: process.env.VERSION || '0.0.1'
     },
 
     build: {
-      publicPath: process.env.PUBLIC_PATH ? JSON.stringify(process.env.PUBLIC_PATH) : JSON.stringify('/'),
+      publicPath: process.env.PUBLIC_PATH || '/',
       env: {
-        API_URL: process.env.API_URL ? JSON.stringify(process.env.API_URL) : JSON.stringify('https://api.github.com/graphql'),
-        AUTH_COOKIE: JSON.stringify(process.env.AUTH_COOKIE)
+        API_URL: process.env.API_URL ? process.env.API_URL : 'https://api.github.com/graphql',
+        AUTH_COOKIE: process.env.AUTH_COOKIE
       },
       scopeHoisting: true,
       vueRouterMode: 'hash',
