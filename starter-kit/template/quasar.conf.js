@@ -1,10 +1,12 @@
-// Configuration for your app
-// https://quasar.dev/quasar-cli/quasar-conf-js
-
 module.exports = function (ctx) {
+  function getFromEnvOrDefault (key, value) {
+    if (process.env[key]) {
+      return JSON.stringify(process.env[key])
+    }
+    return JSON.stringify(value)
+  }
+
   return {
-    // app boot file (/src/boot)
-    // --> boot files are part of "main.js"
     boot: [
       'bus',
       'components',
@@ -21,8 +23,6 @@ module.exports = function (ctx) {
       'fontawesome-v5',
       // 'eva-icons',
       // 'themify',
-      // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
-
       'roboto-font', // optional, you are not bound to it
       'material-icons' // optional, you are not bound to it
     ],
@@ -71,7 +71,6 @@ module.exports = function (ctx) {
         'ClosePopup'
       ],
 
-      // Quasar plugins
       plugins: [
         'Notify',
         'Loading',
@@ -89,8 +88,8 @@ module.exports = function (ctx) {
     build: {
       publicPath: process.env.PUBLIC_PATH || '/',
       env: {
-        API_URL: process.env.API_URL ? process.env.API_URL : 'https://api.github.com/graphql',
-        AUTH_COOKIE: process.env.AUTH_COOKIE
+        API_URL: getFromEnvOrDefault('API_URL', 'https://api.github.com/graphql'),
+        AUTH_COOKIE: getFromEnvOrDefault('AUTH_COOKIE', false)
       },
       scopeHoisting: true,
       vueRouterMode: 'hash',
@@ -162,35 +161,14 @@ module.exports = function (ctx) {
     },
 
     cordova: {
-      // id: 'org.cordova.quasar.app',
-      // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
     },
 
     electron: {
-      // bundler: 'builder', // or 'packager'
-
       extendWebpack (cfg) {
-        // do something with Electron main process Webpack cfg
-        // chainWebpack also available besides this extendWebpack
       },
-
       packager: {
-        // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
-
-        // OS X / Mac App Store
-        // appBundleId: '',
-        // appCategoryType: '',
-        // osxSign: '',
-        // protocol: 'myapp://path',
-
-        // Windows only
-        // win32metadata: { ... }
       },
-
       builder: {
-        // https://www.electron.build/configuration/configuration
-
-        // appId: 'xpto'
       }
     }
   }
