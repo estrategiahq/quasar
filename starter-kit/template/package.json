@@ -48,7 +48,7 @@
     {{/preset.lint}}
     "flush-promises": "^1.0.2",
     "@quasar/app": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/app.tar.gz",
-    "@quasar/quasar-app-extension-testing-unit-jest": "^1.0.0"
+    "@quasar/quasar-app-extension-testing-unit-jest": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/testing.tar.gz"
   },
   "engines": {
     "node": ">= 8.9.0",

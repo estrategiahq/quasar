@@ -12,7 +12,7 @@ sedy "s,REPO_URL,$REPO_URL,g" "starter-kit/template/package.json"
 
 # Replace em todos os package.json exceto ui/package.json
 # for i in `/bin/ls -1d */ | sed -e 's/\///'`; do
-folders=("app" "cli" "starter-kit" "extras" "babel-preset-app" "fastclick")
+folders=("app" "cli" "starter-kit" "extras" "babel-preset-app" "fastclick" "testing")
 for i in ${folders[@]}; do
     echo "$i"
     sedy "s,REPO_URL,$REPO_URL,g" "$i/package.json"
