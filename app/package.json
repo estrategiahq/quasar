@@ -35,8 +35,8 @@
   "bugs": "https://github.com/quasarframework/quasar/issues",
   "homepage": "https://quasar.dev",
   "dependencies": {
-    "@quasar/babel-preset-app": "REPO_URL/babel-preset-app.tar.gz",
-    "@quasar/fastclick": "REPO_URL/fastclick.tar.gz",
+    "@quasar/babel-preset-app": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/babel-preset-app.tar.gz",
+    "@quasar/fastclick": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/fastclick.tar.gz",
     "@vue/preload-webpack-plugin": "1.1.1",
     "autoprefixer": "9.6.1",
     "chalk": "2.4.2",

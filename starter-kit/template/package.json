@@ -26,8 +26,8 @@
     "apollo-link-context": "^1.0.19",
     "vue-apollo": "^3.0.0-rc.5",
     "graphql": "^14.5.6",
-    "quasar": "REPO_URL/ui.tar.gz",
-    "@quasar/extras": "REPO_URL/extras.tar.gz",
+    "quasar": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/ui.tar.gz",
+    "@quasar/extras": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/extras.tar.gz",
     "axios": "^0.19.0"
   },
   "devDependencies": {
@@ -48,7 +48,22 @@
     {{/preset.lint}}
     "flush-promises": "^1.0.2",
     "@quasar/app": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/app.tar.gz",
-    "@quasar/quasar-app-extension-testing-unit-jest": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/testing.tar.gz"
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@types/jest": "^24.0.13",
+    "@vue/test-utils": "^1.0.0-beta.29",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^24.8.0",
+    "babel-plugin-transform-relative-paths": "^0.1.0",
+    "chai": "^4.2.0",
+    "concurrently": "^4.1.0",
+    "enhanced-resolve": "^4.1.0",
+    "jest": "^24.8.0",
+    "jest-serializer-vue": "^2.0.2",
+    "jest-transform-stub": "^2.0.0",
+    "loader-utils": "^1.2.3",
+    "promise": "^8.0.2",
+    "regenerator-runtime": "^0.13.1",
+    "vue-jest": "^3.0.2"
   },
   "engines": {
     "node": ">= 8.9.0",
