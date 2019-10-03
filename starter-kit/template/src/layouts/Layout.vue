@@ -2,24 +2,33 @@
   <q-layout view="lHh Lpr lFf">
     <q-drawer
       v-model="leftDrawerOpen"
+      :mini="mini"
+      :breakpoint="320"
       content-class="drawer-background text-white flex column q-pt-lg justify-start"
-      show-if-above
     >
+      <div class="text-h6 q-mb-lg q-pl-md q-pr-md text-uppercase row justify-between items-center">
+        <span v-if="!mini">{{ name }}</span>
+        <q-icon
+          :name="mini ? 'arrow_forward_ios' : 'arrow_back_ios'"
+          @click="mini = !mini"
+          class="cursor-pointer"
+        />
+      </div>
       <q-list>
-        <div class="text-h5 q-pl-md q-pb-md text-weight-bold text-brand-grey">{{ name }}</div>
         <q-item clickable tag="a" :to="{ name: 'login' }" active-class="drawer-menu-active">
-        <q-item-section>
-          <q-item-label>Login</q-item-label>
-        </q-item-section>
-        </q-item>
-        <q-item clickable tag="a" :to="{ name: 'repositories' }" active-class="drawer-menu-active">
+          <q-item-section avatar class="q-mini-drawer-only">
+            L
+          </q-item-section>
           <q-item-section>
-            <q-item-label>Repositories</q-item-label>
+            <q-item-label>Login</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable tag="a" target="_blank" href="https://github.quasar.dev">
+        <q-item clickable tag="a" :to="{ name: 'repositories' }" active-class="drawer-menu-active">
+          <q-item-section avatar class="q-mini-drawer-only">
+            R
+          </q-item-section>
           <q-item-section>
-            <q-item-label>External Link</q-item-label>
+            <q-item-label>Repositories</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -44,7 +53,8 @@ export default {
   },
   data () {
     return {
-      leftDrawerOpen: true
+      leftDrawerOpen: true,
+      mini: false
     }
   }
 }
@@ -55,9 +65,13 @@ export default {
   background: #111146;
 }
 .drawer-menu-active {
-  margin-left: 50px;
-  padding-left: 0;
-  border-bottom: 1px solid white;
-  font-weight: bold;
+  border-left: 2px solid #fff;
+  background: #030331;
+  opacity: 1;
+  font-weight: 700;
+}
+.q-item.q-router-link--active {
+  color: #fff;
+  opacity: .6;
 }
 </style>
