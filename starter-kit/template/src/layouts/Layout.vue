@@ -64,14 +64,13 @@ export default {
 .drawer-background {
   background: #111146;
 }
+.q-item-type {
+  color: #fff;
+  opacity: .6;
+}
 .drawer-menu-active {
   border-left: 2px solid #fff;
   background: #030331;
   opacity: 1;
-  font-weight: 700;
-}
-.q-item.q-router-link--active {
-  color: #fff;
-  opacity: .6;
 }
 </style>

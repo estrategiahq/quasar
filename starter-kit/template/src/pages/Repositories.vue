@@ -1,6 +1,6 @@
 <template>
-  <q-page class="q-pa-md">
-    <div class="text-h5 q-pb-lg q-pt-lg text-weight-bold">Repositories</div>
+  <q-page class="q-pl-md q-pr-md">
+    <div class="text-h5 q-pb-lg q-pt-lg text-grey-8 text-weight-bold">Repositories</div>
     <q-table
       :columns="columns"
       :data="items"
