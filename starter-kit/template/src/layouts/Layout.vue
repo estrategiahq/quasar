@@ -64,7 +64,7 @@ export default {
 .drawer-background {
   background: #111146;
 }
-.q-item-type {
+.drawer-background > .q-item-type {
   color: #fff;
   opacity: .6;
 }
