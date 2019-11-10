@@ -1,15 +1,14 @@
-export default class Auth {
+export default class {
   constructor (deps) {
-    const { axios } = deps
-    this.$http = axios
+    this.$http = deps.axios
   }
 
-  async authenticate (params) {
-    const { user, otp } = params
+  async authenticate (user) {
+    const { username, password, otp } = user
     const now = new Date().toISOString()
     const req = {
       scopes: ['public_repo'],
-      note: `Estrategia login ${now}`
+      note: `Login ${now}`
     }
     const headers = {}
     if (otp) {
@@ -17,7 +16,7 @@ export default class Auth {
     }
     const resp = await this.$http.post('https://api.github.com/authorizations', req, {
       headers,
-      auth: user
+      auth: { username, password }
     })
     return resp.data.token
   }

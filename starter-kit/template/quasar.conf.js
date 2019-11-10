@@ -5,6 +5,8 @@ module.exports = function (ctx) {
     }
     return JSON.stringify(value)
   }
+  const API_URL = getFromEnvOrDefault('API_URL', 'http://localhost:4001')
+  const TOKEN = getFromEnvOrDefault('TOKEN', '')
 
   return {
     boot: [
@@ -62,7 +64,10 @@ module.exports = function (ctx) {
         'QTd',
         'QBadge',
         'QAvatar',
-        'QChip'
+        'QChip',
+        'QCard',
+        'QCardActions',
+        'QCardSection'
       ],
 
       directives: [
@@ -73,7 +78,8 @@ module.exports = function (ctx) {
       plugins: [
         'Notify',
         'Loading',
-        'LocalStorage'
+        'LocalStorage',
+        'Dialog'
       ]
     },
 
@@ -87,7 +93,8 @@ module.exports = function (ctx) {
     build: {
       publicPath: process.env.PUBLIC_PATH || '/',
       env: {
-        API_URL: getFromEnvOrDefault('API_URL', 'https://api.github.com/graphql'),
+        API_URL,
+        TOKEN,
         AUTH_COOKIE: getFromEnvOrDefault('AUTH_COOKIE', false)
       },
       scopeHoisting: true,

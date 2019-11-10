@@ -1,13 +1,13 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="lhr lPr lFr">
     <q-drawer
-      v-model="leftDrawerOpen"
-      :mini="mini"
-      :breakpoint="320"
       content-class="drawer-background text-white flex column q-pt-lg justify-start"
+      :breakpoint="320"
+      :mini="mini"
+      v-model="leftDrawerOpen"
     >
       <div class="text-h6 q-mb-lg q-pl-md q-pr-md text-uppercase row justify-between items-center">
-        <span v-if="!mini">{{ name }}</span>
+        <span v-if="!mini">Repositories</span>
         <q-icon
           :name="mini ? 'arrow_forward_ios' : 'arrow_back_ios'"
           @click="mini = !mini"
@@ -15,20 +15,30 @@
         />
       </div>
       <q-list>
-        <q-item clickable tag="a" :to="{ name: 'login' }" active-class="drawer-menu-active">
-          <q-item-section avatar class="q-mini-drawer-only">
-            L
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Login</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable tag="a" :to="{ name: 'repositories' }" active-class="drawer-menu-active">
+        <q-item
+          clickable
+          tag="a"
+          :to="{ name: 'repositories' }"
+          active-class="drawer-menu-active"
+        >
           <q-item-section avatar class="q-mini-drawer-only">
             R
           </q-item-section>
           <q-item-section>
             <q-item-label>Repositories</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item
+          clickable
+          tag="a"
+          target="_blank"
+          href="https://github.quasar.dev"
+        >
+          <q-item-section avatar class="q-mini-drawer-only">
+            E
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>External Link</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -41,25 +51,38 @@
 </template>
 
 <script>
+import { events } from '../constants'
 export default {
-  name: 'Layout',
+  events,
   created () {
-    this.$subscribe('apollo-loading-on', () => {
+    this.$subscribe(events.LOADING_START, () => {
       this.$q.loading.show()
     })
-    this.$subscribe(['apollo-error', 'apollo-loading-off'], () => {
+    this.$subscribe([events.LOADING_STOP, events.REQUEST_ERROR], () => {
       this.$q.loading.hide()
+    })
+    this.$subscribe(events.DIALOG_ERROR, message => {
+      this.$q.dialog({
+        title: 'Alguma coisa errada não está certa',
+        position: 'bottom',
+        message
+      })
     })
   },
   data () {
     return {
-      leftDrawerOpen: true,
-      mini: false
+      mini: false,
+      leftDrawerOpen: true
+    }
+  },
+  methods: {
+    logout () {
+      this.$q.localStorage.clear()
+      window.location.href = '/'
     }
   }
 }
 </script>
-
 <style>
 .drawer-background {
   background: #111146;

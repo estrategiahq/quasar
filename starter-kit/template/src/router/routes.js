@@ -1,17 +1,21 @@
-
 const routes = [
   {
     path: '/',
-    component: () => import('layouts/Layout.vue'),
+    component: () => import('layouts/SimpleLayout.vue'),
     children: [
-      { path: 'login', name: 'login', component: () => import('pages/Index.vue') },
+      { path: '', name: 'login', component: () => import('pages/Login.vue') }
+    ]
+  },
+  {
+    path: '/app',
+    component: () => import('layouts/DrawerLayout.vue'),
+    children: [
       { path: 'repositories', name: 'repositories', component: () => import('pages/Repositories.vue') },
       { path: 'form/:owner/:name', name: 'form', component: () => import('pages/Form.vue') }
     ]
   }
 ]
 
-// Always leave this as last one
 if (process.env.MODE !== 'ssr') {
   routes.push({
     path: '*',
