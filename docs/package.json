@@ -15,14 +15,14 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "quasar": "REPO_URL/ui.tar.gz",
-    "@quasar/extras": "REPO_URL/extras.tar.gz",
+    "quasar": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/ui.tar.gz",
+    "@quasar/extras": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/extras.tar.gz",
     "docsearch.js": "^2.6.2",
     "prismjs": "^1.15.0",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
-    "@quasar/app": "REPO_URL/app.tar.gz",
+    "@quasar/app": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/app.tar.gz",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.10.0",
