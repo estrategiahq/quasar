@@ -13,12 +13,13 @@ function authenticate (baseUrl, user) {
     })
     .catch(function (error) {
       console.error(`Falhei ao obter token para ${user.email}/${user.password} em ${url}`)
+      process.exit(1)
     })
 }
 
-const API_URL = getFromEnvOrDefault('API_URL', 'http://localhost:4002')
-const email = getFromEnvOrDefault('EMAIL', 'admin@estrategia.com')
-const password = getFromEnvOrDefault('PASSWORD', 'admin')
+const API_URL = getFromEnvOrDefault('API_URL', 'https://jarbas.estrategia.dev')
+const email = getFromEnvOrDefault('EMAIL', 'admin@estrategia.io')
+const password = getFromEnvOrDefault('PASSWORD', 'password')
 const user = { email, password }
 
 authenticate(API_URL, user)

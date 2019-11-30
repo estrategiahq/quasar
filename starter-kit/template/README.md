@@ -7,7 +7,7 @@
 ### Rodando local
 ```bash
 npm install
-EMAIL="admin@estrategia.com" PASSWORD="admin" API_URL="http://localhost:4002" npm run serve # Obtem token e injeta no service
+EMAIL="admin@estrategia.io" PASSWORD="password" API_URL="http://localhost:4003" npm run serve # Obtem token e injeta no service
 ```
 
 ### Comandos

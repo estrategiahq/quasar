@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     {{#preset.lint}}"lint": "eslint --ext .js,.vue src",{{/preset.lint}}
-    "serve": "export TOKEN=`node token.local.js` && echo $TOKEN && quasar dev",
+    "serve": "export TOKEN=`node token.local.js` && test \"$TOKEN\" != \"\" && echo $TOKEN && quasar dev",
     "test": "npm run test:unit",
     "test:unit": "jest --updateSnapshot",
     "test:coverage": "jest --coverage",
