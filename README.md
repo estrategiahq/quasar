@@ -1,13 +1,16 @@
 # Quasar Framework - Estratégia Concursos Edition
 
-## Getting Started
+## Instalação
 
 ```sh
-npm i -g https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/cli.tar.gz
+npm i -g https://github.com/estrategiaconcursos/quasar/releases/download/v1.9.15/cli.tar.gz
 quasar create my-project
 ```
 
-## Updating Quasar Base
+## Atualização da base do Quasar
+
+Como de costume em projetos Javacript, de tempos em tempos, diversas libs são consideradas inseguras e por isso é necessário atualizar o Quasar para uma versão mais recente.  
+Os passos para atualizar são:
 
 1. Fazer clone da última tag estável do repositório do quasar;
 2. Sobrescrever as pastas: app, cli, docs, fastclick, ui e babel-preset-app;
@@ -19,14 +22,12 @@ quasar create my-project
 8. Alterar o `starter-kit/meta.js` para definir o stylus como padrão, removendo o sass e outras opções;
 9. Criar o esqueleto em `starter-kit/templates`;
 10. Executar o script para substituir `REPO_URL` pela URL da release no GitHub.
+11. Criar uma tag com semver de acordo com a mesma versão do Quasar e uma release dela no GitHub;
+12. Executar o `./release.sh` e fazer o upload de todos os tar.gz criados para a release no GitHub;
+13. Executar `./release.sh build` para criar o `ui.tar.gz`;
+14. Copiar o `ui.tar.gz` para a release no GitHub.
 
-```sh
-./release.sh
-```
-
-Replace all `.tar.gz` files in GitHub release page by the new generated.
-
-## Documentation
+## Documentação
 
 ```sh
 cd docs
