@@ -1,6 +1,6 @@
 ---
 title: Publishing to Store
-desc: How to publish a Quasar hybrid mobile app to Google Play Store and to Apple App Store.
+desc: How to publish a Quasar hybrid mobile app with Cordova to Google Play Store and to Apple App Store.
 ---
 
 So, you've finished working on your Mobile App. Now it's time to deploy it. Let's learn how.
@@ -24,7 +24,7 @@ Let’s generate our private key using the keytool command that comes with the J
 $ keytool -genkey -v -keystore my-release-key.keystore -alias alias_name -keyalg RSA -keysize 2048 -validity 20000
 ```
 
-You’ll first be prompted to create a password for the keystore. Then, answer the rest of the nice tools’s questions and when it’s all done, you should have a file called my-release-key.keystore created in the current directory.
+You’ll first be prompted to create a password for the keystore. Then, answer the rest of the nice tool’s questions and when it’s all done, you should have a file called my-release-key.keystore created in the current directory.
 
 ::: danger
 Make sure to save this file somewhere safe, if you lose it you won’t be able to submit updates to your app!

@@ -23,15 +23,24 @@ import createStore from 'app/<%= sourceFiles.store %>'
 <% } %>
 import createRouter from 'app/<%= sourceFiles.router %>'
 
-export default function (<%= ctx.mode.ssr ? 'ssrContext' : '' %>) {
+<% if (ctx.mode.capacitor && capacitor.hideSplashcreen !== false) { %>
+import { Plugins } from '@capacitor/core'
+const { SplashScreen } = Plugins
+<% } %>
+
+<% if (__vueDevtools !== false) { %>
+import vueDevtools from '@vue/devtools'
+<% } %>
+
+export default async function (<%= ctx.mode.ssr ? 'ssrContext' : '' %>) {
   // create store and router instances
   <% if (store) { %>
   const store = typeof createStore === 'function'
-    ? createStore({Vue<%= ctx.mode.ssr ? ', ssrContext' : '' %>})
+    ? await createStore({Vue<%= ctx.mode.ssr ? ', ssrContext' : '' %>})
     : createStore
   <% } %>
   const router = typeof createRouter === 'function'
-    ? createRouter({Vue, <%= ctx.mode.ssr ? 'ssrContext' + (store ? ', ' : '') : '' %><%= store ? 'store' : '' %>})
+    ? await createRouter({Vue<%= ctx.mode.ssr ? ', ssrContext' : '' %><%= store ? ', store' : '' %>})
     : createRouter
   <% if (store) { %>
   // make router instance available in store
@@ -45,7 +54,16 @@ export default function (<%= ctx.mode.ssr ? 'ssrContext' : '' %>) {
     <% if (!ctx.mode.ssr) { %>el: '#q-app',<% } %>
     router,
     <%= store ? 'store,' : '' %>
-    render: h => h(App)
+    render: h => h(App)<% if (__needsAppMountHook === true) { %>,
+    mounted () {
+      <% if (ctx.mode.capacitor && capacitor.hideSplashscreen !== false) { %>
+      SplashScreen.hide()
+      <% } %>
+
+      <% if (__vueDevtools !== false) { %>
+      vueDevtools.connect('<%= __vueDevtools.host %>', <%= __vueDevtools.port %>)
+      <% } %>
+    }<% } %>
   }
 
   <% if (ctx.mode.ssr) { %>

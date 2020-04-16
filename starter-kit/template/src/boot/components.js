@@ -15,6 +15,7 @@ requireComponent.keys().forEach(fileName => {
       fileName
         .replace(/^\.\/_/, '')
         .replace(/\.\w+$/, '')
+        .replace('index', '')
     )
   )
   Vue.component(componentName, componentConfig.default || componentConfig)

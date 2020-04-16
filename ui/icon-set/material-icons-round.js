@@ -28,8 +28,9 @@ export default {
   carousel: {
     left: 'r_chevron_left',
     right: 'r_chevron_right',
-    navigationIcon: 'r_lens',
-    thumbnails: 'r_view_carousel'
+    up: 'r_keyboard_arrow_up',
+    down: 'r_keyboard_arrow_down',
+    navigationIcon: 'r_lens'
   },
   chip: {
     remove: 'r_cancel',
@@ -67,10 +68,11 @@ export default {
     hr: 'r_remove',
     undo: 'r_undo',
     redo: 'r_redo',
-    header: 'r_format_size',
+    heading: 'r_format_size',
     code: 'r_code',
     size: 'r_format_size',
-    font: 'r_font_download'
+    font: 'r_font_download',
+    viewSource: 'r_code'
   },
   expansionItem: {
     icon: 'r_keyboard_arrow_down',

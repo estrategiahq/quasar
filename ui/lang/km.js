@@ -67,12 +67,12 @@ export default {
     hr: 'បញ្ចូលបន្ទាត់ផ្តេក',
     undo: 'មិនធ្វើវិញ',
     redo: 'ធ្វើវិញ',
-    header1: 'ចំណងជើង 1',
-    header2: 'ចំណងជើង 2',
-    header3: 'ចំណងជើង 3',
-    header4: 'ចំណងជើង 4',
-    header5: 'ចំណងជើង 5',
-    header6: 'ចំណងជើង 6',
+    heading1: 'ចំណងជើង 1',
+    heading2: 'ចំណងជើង 2',
+    heading3: 'ចំណងជើង 3',
+    heading4: 'ចំណងជើង 4',
+    heading5: 'ចំណងជើង 5',
+    heading6: 'ចំណងជើង 6',
     paragraph: 'កថាខណ្ឌ',
     code: 'កូដ',
     size1: 'តូចណាស់',
@@ -82,7 +82,8 @@ export default {
     size5: 'ធំ',
     size6: 'ធំណាស់',
     size7: 'អតិបរិមា',
-    defaultFont: 'ពុម្ពអក្សរដើម'
+    defaultFont: 'ពុម្ពអក្សរដើម',
+    viewSource: 'មើលប្រភព។'
   },
   tree: {
     noNodes: 'គ្មានទិន្នន័យ',

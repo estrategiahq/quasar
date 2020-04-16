@@ -1,10 +1,13 @@
 import Vue from 'vue'
 
+import DarkMixin from '../../mixins/dark.js'
+
 export default Vue.extend({
   name: 'QSeparator',
 
+  mixins: [ DarkMixin ],
+
   props: {
-    dark: Boolean,
     spaced: Boolean,
     inset: [Boolean, String],
     vertical: Boolean,
@@ -12,15 +15,31 @@ export default Vue.extend({
   },
 
   computed: {
+    insetClass () {
+      switch (this.inset) {
+        case true:
+          return ' q-separator--inset'
+        case 'item':
+          return ' q-separator--item-inset'
+        case 'item-thumbnail':
+          return ' q-separator--item-thumbnail-inset'
+        default:
+          return ''
+      }
+    },
+
     classes () {
+      return 'q-separator' + this.insetClass +
+        ` q-separator--${this.vertical === true ? 'vertical self-stretch' : 'horizontal col-grow'}` +
+        (this.color !== void 0 ? ` bg-${this.color}` : '') +
+        (this.isDark === true ? ' q-separator--dark' : '') +
+        (this.spaced === true ? ' q-separator--spaced' : '')
+    },
+
+    attrs () {
       return {
-        [`bg-${this.color}`]: this.color,
-        'q-separator--dark': this.dark,
-        'q-separator--spaced': this.spaced,
-        'q-separator--inset': this.inset === true,
-        'q-separator--item-inset': this.inset === 'item',
-        'q-separator--item-thumbnail-inset': this.inset === 'item-thumbnail',
-        [`q-separator--${this.vertical ? 'vertical self-stretch' : 'horizontal col-grow'}`]: true
+        role: 'separator',
+        'aria-orientation': this.vertical === true ? 'vertical' : 'horizontal'
       }
     }
   },
@@ -28,7 +47,9 @@ export default Vue.extend({
   render (h) {
     return h('hr', {
       staticClass: 'q-separator',
-      class: this.classes
+      class: this.classes,
+      attrs: this.attrs,
+      on: this.$listeners
     })
   }
 })

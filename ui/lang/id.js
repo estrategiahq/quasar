@@ -67,12 +67,12 @@ export default {
     hr: 'Masukkan Aturan Horizontal',
     undo: 'Urungkan',
     redo: 'Ulangi',
-    header1: 'Header 1',
-    header2: 'Header 2',
-    header3: 'Header 3',
-    header4: 'Header 4',
-    header5: 'Header 5',
-    header6: 'Header 6',
+    heading1: 'Heading 1',
+    heading2: 'Heading 2',
+    heading3: 'Heading 3',
+    heading4: 'Heading 4',
+    heading5: 'Heading 5',
+    heading6: 'Heading 6',
     paragraph: 'Paragraf',
     code: 'Kode',
     size1: 'Sangat Kecil',
@@ -82,7 +82,8 @@ export default {
     size5: 'Besar',
     size6: 'Sangat Besar',
     size7: 'Maksimum',
-    defaultFont: 'Huruf Bawaan'
+    defaultFont: 'Huruf Bawaan',
+    viewSource: 'Lihat sumber'
   },
   tree: {
     noNodes: 'Tak ada node tersedia',

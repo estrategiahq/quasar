@@ -67,12 +67,12 @@ export default {
     hr: 'Adaugă linie orizontală',
     undo: 'Schimbă inapoi',
     redo: 'Refă',
-    header1: 'Header 1',
-    header2: 'Header 2',
-    header3: 'Header 3',
-    header4: 'Header 4',
-    header5: 'Header 5',
-    header6: 'Header 6',
+    heading1: 'Heading 1',
+    heading2: 'Heading 2',
+    heading3: 'Heading 3',
+    heading4: 'Heading 4',
+    heading5: 'Heading 5',
+    heading6: 'Heading 6',
     paragraph: 'Paragraf',
     code: 'Cod',
     size1: 'Foarte mic',
@@ -82,7 +82,8 @@ export default {
     size5: 'Big',
     size6: 'Foarte mare',
     size7: 'Maxim',
-    defaultFont: 'Font implicit'
+    defaultFont: 'Font implicit',
+    viewSource: 'Vizualizare sursă'
   },
   tree: {
     noNodes: 'Nu sunt date disponibile',

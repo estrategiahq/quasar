@@ -1,12 +1,10 @@
-const
-  fs = require('fs'),
-  path = require('path'),
-  fse = require('fs-extra')
+const fs = require('fs')
+const path = require('path')
+const fse = require('fs-extra')
 
-const
-  appPaths = require('./app-paths'),
-  filePath = appPaths.resolve.app('.quasar/artifacts.json'),
-  log = require('./helpers/logger')('app:artifacts')
+const appPaths = require('./app-paths')
+const filePath = appPaths.resolve.app('.quasar/artifacts.json')
+const log = require('./helpers/logger')('app:artifacts')
 
 function exists () {
   return fs.existsSync(filePath)
@@ -36,6 +34,13 @@ module.exports.add = function (entry) {
 module.exports.clean = function (folder) {
   if (folder.endsWith(path.join('src-cordova', 'www'))) {
     fse.emptyDirSync(folder)
+  }
+  else if (folder.endsWith(path.join('src-capacitor', 'www'))) {
+    fse.emptyDirSync(folder)
+    fse.copySync(
+      appPaths.resolve.cli('templates/capacitor/www'),
+      appPaths.capacitorDir
+    )
   }
   else {
     fse.removeSync(folder)

@@ -1,4 +1,7 @@
-const directions = ['left', 'right', 'up', 'down', 'horizontal', 'vertical']
+import { isSSR, client, iosEmulated } from '../plugins/Platform.js'
+import { listenOpts } from './event.js'
+
+const directions = [ 'left', 'right', 'up', 'down', 'horizontal', 'vertical' ]
 
 const modifiersAll = {
   left: true,
@@ -44,26 +47,54 @@ export function getModifierDirections (mod) {
 
 export function updateModifiers (ctx, { oldValue, value, modifiers }) {
   if (oldValue !== value) {
+    typeof value !== 'function' && ctx.end()
     ctx.handler = value
   }
 
-  if (directions.some(direction => modifiers[direction] !== ctx.modifiers[direction])) {
+  if (
+    ctx.modifiers.mouseAllDir !== modifiers.mouseAllDir ||
+    directions.some(direction => modifiers[direction] !== ctx.modifiers[direction])
+  ) {
     ctx.modifiers = modifiers
     ctx.direction = getModifierDirections(modifiers)
   }
 }
 
-export function setObserver (el, evt, ctx) {
-  const target = evt.target
-  ctx.touchTargetObserver = new MutationObserver(() => {
-    el.contains(target) === false && ctx.end(evt)
+export function addEvt (ctx, target, events) {
+  target += 'Evt'
+
+  ctx[target] = ctx[target] !== void 0
+    ? ctx[target].concat(events)
+    : events
+
+  events.forEach(evt => {
+    evt[0].addEventListener(evt[1], ctx[evt[2]], listenOpts[evt[3]])
   })
-  ctx.touchTargetObserver.observe(el, { childList: true, subtree: true })
 }
 
-export function removeObserver (ctx) {
-  if (ctx.touchTargetObserver !== void 0) {
-    ctx.touchTargetObserver.disconnect()
-    ctx.touchTargetObserver = void 0
+export function cleanEvt (ctx, target) {
+  target += 'Evt'
+
+  if (ctx[target] !== void 0) {
+    ctx[target].forEach(evt => {
+      evt[0].removeEventListener(evt[1], ctx[evt[2]], listenOpts[evt[3]])
+    })
+    ctx[target] = void 0
   }
+}
+
+export const getTouchTarget = isSSR === false && iosEmulated !== true && (
+  client.is.ios === true ||
+  window.navigator.vendor.toLowerCase().indexOf('apple') > -1
+)
+  ? () => document
+  : target => target
+
+export function shouldStart (evt, ctx) {
+  return ctx.event === void 0 &&
+    evt.target !== void 0 &&
+    evt.target.draggable !== true &&
+    typeof ctx.handler === 'function' &&
+    evt.target.nodeName.toUpperCase() !== 'INPUT' &&
+    (evt.qClonedBy === void 0 || evt.qClonedBy.indexOf(ctx.uid) === -1)
 }

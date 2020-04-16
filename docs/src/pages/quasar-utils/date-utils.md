@@ -46,7 +46,7 @@ let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DDTHH:mm:ss.SSSZ')
 For i18n, you can use a third parameter:
 
 ```js
-let formattedString = date.formatDate(timesStamp, 'MMMM - dddd', {
+let formattedString = date.formatDate(timeStamp, 'MMMM - dddd', {
   days: ['Duminica', 'Luni', /* and all the rest of days - remember starting with Sunday */],
   daysShort: ['Dum', 'Lun', /* and all the rest of days - remember starting with Sunday */],
   months: ['Ianuarie', 'Februarie', /* and all the rest of months */],
@@ -177,16 +177,22 @@ To get the minimum/maximum date of a date set (i.e. array) use:
 ``` js
 import { date } from 'quasar'
 
-let dates = [ new Date(2017, 6, 24), new Date(2017, 5, 20), new Date(2017, 6, 26) ]
-let min = date.getMinDate(dates) // `min` is 2017-5-20
-let max = date.getMaxDate(dates) // `max` is 2017-6-26
-
-// Or simply use multiple parameters:
-
 let min = date.getMinDate(new Date(2017, 6, 24), new Date(2017, 5, 20), new Date(2017, 6, 26))
 // `min` is 2017-5-20
 let max = date.getMaxDate(new Date(2017, 6, 24), new Date(2017, 5, 20), new Date(2017, 6, 26))
 // `max` is 2017-6-26
+
+// Or use an array:
+let dates = [ new Date(2017, 6, 24), new Date(2017, 5, 20), new Date(2017, 6, 26) ]
+let min = date.getMinDate(...dates) // `min` is 2017-5-20
+let max = date.getMaxDate(...dates) // `max` is 2017-6-26
+```
+
+Note that the returning value is a timestamp.
+
+```js
+console.log(max) // 1497906000000
+console.log(new Date(max)) // Wed Jul 26 2017 00:00:00 GMT+0300 (Eastern European Summer Time)
 ```
 
 ### Time range
@@ -206,6 +212,13 @@ if (date.isBetweenDates(dateTarget, dateFrom, dateTo)) {
 
 // including which margin you want
 if (date.isBetweenDates(dateTarget, dateFrom, dateTo, { inclusiveFrom: true, inclusiveTo: true })) {
+  // Do something with dateTarget
+}
+
+// (Quasar v1.9.9+)
+// if you only care about comparing dates (year/month/day, regardless of time)
+// then you could tip isBetweenDates() about it so it can perform best:
+if (date.isBetweenDates(dateTarget, dateFrom, dateTo, { onlyDate: true })) {
   // Do something with dateTarget
 }
 ```
@@ -267,12 +280,12 @@ The unit parameter indicates the unit of measurement, if not specified then it i
 
 | Unit | Description |
 | --- | --- |
-| `seconds` | distance in seconds |
-| `minutes` | distance in minutes |
-| `hours` | distance in hours |
-| `days` | distance in days |
-| `months` | distance in months |
-| `years` | distance in years |
+| `seconds` | distance in seconds (disregarding milliseconds) |
+| `minutes` | distance in minutes (disregarding seconds, ...) |
+| `hours` | distance in hours (disregarding minutes, seconds, ...) |
+| `days` | distance in calendar days |
+| `months` | distance in calendar months |
+| `years` | distance in calendar years |
 
 ### Calendar
 To get the [ISO week number in year](https://en.wikipedia.org/wiki/ISO_week_date) for a given date object use:

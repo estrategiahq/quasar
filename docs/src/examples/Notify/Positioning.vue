@@ -69,7 +69,9 @@ const alerts = [
 export default {
   methods: {
     showNotif (position) {
-      const { color, textColor, multiLine, icon, message, avatar } = alerts[ Math.floor(Math.random(alerts.length) * 10) % alerts.length ]
+      const { color, textColor, multiLine, icon, message, avatar } = alerts[
+        Math.floor(Math.random(alerts.length) * 10) % alerts.length
+      ]
       const random = Math.random() * 100
 
       const twoActions = random > 70
@@ -85,11 +87,11 @@ export default {
         multiLine,
         actions: twoActions
           ? [
-            { label: 'Reply', color: buttonColor, handler: () => console.log('wooow') },
-            { label: 'Dismiss', color: 'yellow', handler: () => console.log('wooow') }
+            { label: 'Reply', color: buttonColor, handler: () => { /* console.log('wooow') */ } },
+            { label: 'Dismiss', color: 'yellow', handler: () => { /* console.log('wooow') */ } }
           ]
           : (random > 40
-            ? [ { label: 'Reply', color: buttonColor, handler: () => console.log('wooow') } ]
+            ? [ { label: 'Reply', color: buttonColor, handler: () => { /* console.log('wooow') */ } } ]
             : null
           ),
         timeout: Math.random() * 5000 + 3000

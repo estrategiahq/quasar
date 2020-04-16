@@ -1,6 +1,6 @@
 #!/bin/sh
 
-REPO_URL="https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2"
+REPO_URL="https://github.com/estrategiaconcursos/quasar/releases/download/v1.9.15"
 
 # Replace no template
 distro=`uname -s`

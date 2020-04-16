@@ -1,11 +1,13 @@
 import Vue from 'vue'
 
-import uid from '../../utils/uid.js'
 import QIcon from '../icon/QIcon.js'
 import RippleMixin from '../../mixins/ripple.js'
 
 import { stop } from '../../utils/event.js'
-import slot from '../../utils/slot.js'
+import { mergeSlot } from '../../utils/slot.js'
+import { isKeyCode } from '../../utils/key-composition.js'
+
+let uid = 0
 
 export default Vue.extend({
   name: 'QTab',
@@ -15,10 +17,11 @@ export default Vue.extend({
   inject: {
     tabs: {
       default () {
-        console.error('QTab/QRouteTab components need to be child of QTabsBar')
+        console.error('QTab/QRouteTab components need to be child of QTabs')
       }
     },
-    __activateTab: {}
+    __activateTab: {},
+    __recalculateScroll: {}
   },
 
   props: {
@@ -26,10 +29,11 @@ export default Vue.extend({
     label: [Number, String],
 
     alert: [Boolean, String],
+    alertIcon: String,
 
     name: {
       type: [Number, String],
-      default: () => uid()
+      default: () => `t_${uid++}`
     },
 
     noCaps: Boolean,
@@ -71,7 +75,7 @@ export default Vue.extend({
     },
 
     __onKeyup (e) {
-      e.keyCode === 13 && this.__activate(e, true)
+      isKeyCode(e, 13) === true && this.__activate(e, true)
     },
 
     __getContent (h) {
@@ -83,37 +87,55 @@ export default Vue.extend({
           class: this.tabs.indicatorClass
         })
 
-      this.icon !== void 0 && content.push(h(QIcon, {
-        staticClass: 'q-tab__icon',
-        props: { name: this.icon }
-      }))
+      this.icon !== void 0 && content.push(
+        h(QIcon, {
+          staticClass: 'q-tab__icon',
+          props: { name: this.icon }
+        })
+      )
 
-      this.label !== void 0 && content.push(h('div', {
-        staticClass: 'q-tab__label'
-      }, [ this.label ]))
+      this.label !== void 0 && content.push(
+        h('div', {
+          staticClass: 'q-tab__label'
+        }, [ this.label ])
+      )
 
-      this.alert !== false && content.push(h('div', {
-        staticClass: 'q-tab__alert',
-        class: this.alert !== true ? `text-${this.alert}` : null
-      }))
+      this.alert !== false && content.push(
+        this.alertIcon !== void 0
+          ? h(QIcon, {
+            staticClass: 'q-tab__alert-icon',
+            props: {
+              color: this.alert !== true
+                ? this.alert
+                : void 0,
+              name: this.alertIcon
+            }
+          })
+          : h('div', {
+            staticClass: 'q-tab__alert',
+            class: this.alert !== true
+              ? `text-${this.alert}`
+              : null
+          })
+      )
 
-      narrow && content.push(indicator)
+      narrow === true && content.push(indicator)
 
       const node = [
         h('div', { staticClass: 'q-focus-helper', attrs: { tabindex: -1 }, ref: 'blurTarget' }),
 
         h('div', {
-          staticClass: 'q-tab__content self-stretch flex-center relative-position no-pointer-events q-anchor--skip non-selectable',
+          staticClass: 'q-tab__content self-stretch flex-center relative-position q-anchor--skip non-selectable',
           class: this.tabs.inlineLabel === true ? 'row no-wrap q-tab__content--inline' : 'column'
-        }, content.concat(slot(this, 'default')))
+        }, mergeSlot(content, this, 'default'))
       ]
 
-      !narrow && node.push(indicator)
+      narrow === false && node.push(indicator)
 
       return node
     },
 
-    __render (h, tag, props) {
+    __renderTab (h, tag, props) {
       const data = {
         staticClass: 'q-tab relative-position self-stretch flex flex-center text-center',
         class: this.classes,
@@ -141,7 +163,15 @@ export default Vue.extend({
     }
   },
 
+  mounted () {
+    this.__recalculateScroll()
+  },
+
+  beforeDestroy () {
+    this.__recalculateScroll()
+  },
+
   render (h) {
-    return this.__render(h, 'div')
+    return this.__renderTab(h, 'div')
   }
 })

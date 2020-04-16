@@ -28,6 +28,8 @@ export default {
   carousel: {
     left: 'ti-angle-left',
     right: 'ti-angle-right',
+    up: 'ti-angle-up',
+    down: 'ti-angle-down',
     navigationIcon: 'ti-control-record',
     thumbnails: 'ti-layout-slider-alt'
   },
@@ -67,10 +69,11 @@ export default {
     hr: 'ti-minus',
     undo: 'ti-share-alt',
     redo: 'ti-share',
-    header: 'ti-paragraph',
+    heading: 'ti-paragraph',
     code: 'code',
     size: 'ti-smallcap',
-    font: 'font_download'
+    font: 'font_download',
+    viewSource: 'ti-shortcode'
   },
   expansionItem: {
     icon: 'ti-angle-down',

@@ -1,14 +1,29 @@
 import Vue from 'vue'
 
 import QIcon from '../icon/QIcon.js'
+
+import DarkMixin from '../../mixins/dark.js'
 import RippleMixin from '../../mixins/ripple.js'
+import { getSizeMixin } from '../../mixins/size.js'
+
 import { stopAndPrevent } from '../../utils/event.js'
-import slot from '../../utils/slot.js'
+import { mergeSlotSafely } from '../../utils/slot.js'
+import { cache } from '../../utils/vm.js'
 
 export default Vue.extend({
   name: 'QChip',
 
-  mixins: [ RippleMixin ],
+  mixins: [
+    RippleMixin,
+    DarkMixin,
+    getSizeMixin({
+      xs: 8,
+      sm: 10,
+      md: 14,
+      lg: 20,
+      xl: 24
+    })
+  ],
 
   model: {
     event: 'remove'
@@ -44,7 +59,7 @@ export default Vue.extend({
 
   computed: {
     classes () {
-      const text = this.outline
+      const text = this.outline === true
         ? this.color || this.textColor
         : this.textColor
 
@@ -56,7 +71,8 @@ export default Vue.extend({
         'q-chip--outline': this.outline,
         'q-chip--selected': this.selected,
         'q-chip--clickable cursor-pointer non-selectable q-hoverable': this.isClickable,
-        'q-chip--square': this.square
+        'q-chip--square': this.square,
+        'q-chip--dark q-dark': this.isDark
       }
     },
 
@@ -95,21 +111,25 @@ export default Vue.extend({
     __getContent (h) {
       const child = []
 
-      this.isClickable && child.push(
+      this.isClickable === true && child.push(
         h('div', { staticClass: 'q-focus-helper' })
       )
 
-      this.hasLeftIcon && child.push(
+      this.hasLeftIcon === true && child.push(
         h(QIcon, {
           staticClass: 'q-chip__icon q-chip__icon--left',
           props: { name: this.selected === true ? this.$q.iconSet.chip.selected : this.icon }
         })
       )
 
+      const label = this.label !== void 0
+        ? [ h('div', { staticClass: 'ellipsis' }, [ this.label ]) ]
+        : void 0
+
       child.push(
         h('div', {
-          staticClass: 'q-chip__content row no-wrap items-center q-anchor--skip'
-        }, this.label !== void 0 ? [ this.label ] : slot(this, 'default'))
+          staticClass: 'q-chip__content col row no-wrap items-center q-anchor--skip'
+        }, mergeSlotSafely(label, this, 'default'))
       )
 
       this.iconRight && child.push(
@@ -138,17 +158,22 @@ export default Vue.extend({
   render (h) {
     if (this.value === false) { return }
 
-    const data = this.isClickable ? {
+    const data = {
+      staticClass: 'q-chip row inline no-wrap items-center',
+      class: this.classes,
+      style: this.sizeStyle
+    }
+
+    this.isClickable === true && Object.assign(data, {
       attrs: { tabindex: this.computedTabindex },
-      on: {
+      on: cache(this, 'click', {
         click: this.__onClick,
         keyup: this.__onKeyup
-      },
-      directives: [{ name: 'ripple', value: this.ripple }]
-    } : {}
-
-    data.staticClass = 'q-chip row inline no-wrap items-center'
-    data.class = this.classes
+      }),
+      directives: cache(this, 'dir#' + this.ripple, [
+        { name: 'ripple', value: this.ripple }
+      ])
+    })
 
     return h('div', data, this.__getContent(h))
   }

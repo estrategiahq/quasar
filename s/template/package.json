@@ -1,0 +1,77 @@
+{
+
+  "name": "{{ name }}",
+  "version": "0.0.1",
+  "description": "{{ description }}",
+  "productName": "{{ productName }}",
+  "cordovaId": "{{ cordovaId }}",
+  "author": "{{ author }}",
+  "private": true,
+  "scripts": {
+    {{#preset.lint}}"lint": "eslint --ext .js,.vue src",{{/preset.lint}}
+    "serve": "export TOKEN=`node token.local.js` && test \"$TOKEN\" != \"\" && echo $TOKEN && quasar dev",
+    "test": "npm run test:unit",
+    "test:unit": "jest --updateSnapshot",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:watchAll": "jest --watchAll",
+    "serve:test:coverage": "quasar serve jest/coverage/lcov-report/ --port 8788",
+    "concurrently:dev:jest": "concurrently \"quasar dev\" \"jest --watch\""
+  },
+  "dependencies": {
+    "apollo-boost": "^0.4.4",
+    "apollo-cache-inmemory": "^1.6.3",
+    "apollo-client": "^2.6.4",
+    "apollo-link": "^1.2.13",
+    "apollo-link-http": "^1.5.16",
+    "apollo-link-context": "^1.0.19",
+    "vue-apollo": "^3.0.0-rc.5",
+    "graphql": "^14.5.6",
+    "quasar": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/ui.tar.gz",
+    "@quasar/extras": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/extras.tar.gz",
+    "axios": "^0.19.0"
+  },
+  "devDependencies": {
+    {{#preset.lint}}
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.10.0",
+    "eslint-loader": "^2.1.1",
+    "eslint-plugin-vue": "^5.0.0",
+    {{#if_eq lintConfig "standard"}}
+    "@vue/eslint-config-standard": "^4.0.0",
+    {{/if_eq}}
+    {{#if_eq lintConfig "airbnb"}}
+    "@vue/eslint-config-airbnb": "^4.0.0",
+    {{/if_eq}}
+    {{#if_eq lintConfig "prettier"}}
+    "@vue/eslint-config-prettier": "^4.0.0",
+    {{/if_eq}}
+    {{/preset.lint}}
+    "flush-promises": "^1.0.2",
+    "@quasar/app": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.1.2/app.tar.gz",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@types/jest": "^24.0.13",
+    "@vue/test-utils": "^1.0.0-beta.29",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^24.8.0",
+    "babel-plugin-transform-relative-paths": "^0.1.0",
+    "chai": "^4.2.0",
+    "concurrently": "^4.1.0",
+    "enhanced-resolve": "^4.1.0",
+    "jest": "^24.8.0",
+    "jest-serializer-vue": "^2.0.2",
+    "jest-transform-stub": "^2.0.0",
+    "loader-utils": "^1.2.3",
+    "promise": "^8.0.2",
+    "regenerator-runtime": "^0.13.1",
+    "vue-jest": "^3.0.2"
+  },
+  "engines": {
+    "node": ">= 8.9.0",
+    "npm": ">= 5.6.0",
+    "yarn": ">= 1.6.0"
+  },
+  "browserslist": [
+    "last 1 version, not dead, ie >= 11"
+  ]
+}

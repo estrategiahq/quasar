@@ -2,17 +2,19 @@ import Vue from 'vue'
 
 import QField from '../field/QField.js'
 
+import { FormFieldMixin } from '../../mixins/form.js'
+import { FileValueMixin } from '../../mixins/file.js'
 import MaskMixin from '../../mixins/mask.js'
-import debounce from '../../utils/debounce.js'
+import CompositionMixin from '../../mixins/composition.js'
 import { stop } from '../../utils/event.js'
 
 export default Vue.extend({
   name: 'QInput',
 
-  mixins: [ QField, MaskMixin ],
+  mixins: [ QField, MaskMixin, CompositionMixin, FormFieldMixin, FileValueMixin ],
 
   props: {
-    value: [String, Number],
+    value: { required: false },
 
     type: {
       type: String,
@@ -21,7 +23,6 @@ export default Vue.extend({
 
     debounce: [String, Number],
 
-    maxlength: [Number, String],
     autogrow: Boolean, // makes a textarea
 
     inputClass: [Array, String, Object],
@@ -55,13 +56,13 @@ export default Vue.extend({
       }
 
       // textarea only
-      this.autogrow === true && this.$nextTick(this.__adjustHeightDebounce)
+      this.autogrow === true && this.$nextTick(this.__adjustHeight)
     },
 
     autogrow (autogrow) {
       // textarea only
       if (autogrow === true) {
-        this.$nextTick(this.__adjustHeightDebounce)
+        this.$nextTick(this.__adjustHeight)
       }
       // if it has a number of rows set respect it
       else if (this.$attrs.rows > 0 && this.$refs.input !== void 0) {
@@ -92,11 +93,26 @@ export default Vue.extend({
 
   methods: {
     focus () {
-      this.$refs.input !== void 0 && this.$refs.input !== document.activeElement && document.activeElement.id !== this.targetUid && this.$refs.input.focus()
+      const el = document.activeElement
+      if (
+        this.$refs.input !== void 0 &&
+        this.$refs.input !== el &&
+        // IE can have null document.activeElement
+        (el === null || el.id !== this.targetUid)
+      ) {
+        this.$refs.input.focus()
+      }
     },
 
     select () {
       this.$refs.input !== void 0 && this.$refs.input.select()
+    },
+
+    __onPaste (e) {
+      if (this.hasMask === true && this.reverseFillMask !== true) {
+        const inp = e.target
+        this.__moveCursorForPaste(inp, inp.selectionStart, inp.selectionEnd)
+      }
     },
 
     __onInput (e) {
@@ -112,7 +128,7 @@ export default Vue.extend({
       const val = e.target.value
 
       if (this.hasMask === true) {
-        this.__updateMaskValue(val)
+        this.__updateMaskValue(val, false, e.inputType)
       }
       else {
         this.__emitValue(val)
@@ -159,30 +175,20 @@ export default Vue.extend({
     __adjustHeight () {
       const inp = this.$refs.input
       if (inp !== void 0) {
+        const parentStyle = inp.parentNode.style
+
+        // reset height of textarea to a small size to detect the real height
+        // but keep the total control size the same
+        parentStyle.marginBottom = (inp.scrollHeight - 1) + 'px'
         inp.style.height = '1px'
+
         inp.style.height = inp.scrollHeight + 'px'
+        parentStyle.marginBottom = ''
       }
-    },
-
-    __onCompositionStart (e) {
-      e.target.composing = true
-    },
-
-    __onCompositionUpdate (e) {
-      if (typeof e.data === 'string' && e.data.codePointAt(0) < 256) {
-        e.target.composing = false
-      }
-    },
-
-    __onCompositionEnd (e) {
-      if (e.target.composing !== true) { return }
-      e.target.composing = false
-
-      this.__onInput(e)
     },
 
     __onChange (e) {
-      this.__onCompositionEnd(e)
+      this.__onComposition(e)
 
       clearTimeout(this.emitTimer)
       this.emitValueFn !== void 0 && this.emitValueFn()
@@ -200,9 +206,9 @@ export default Vue.extend({
       this.stopValueWatcher = false
       delete this.tempValue
 
-      this.$nextTick(() => {
+      this.type !== 'file' && this.$nextTick(() => {
         if (this.$refs.input !== void 0) {
-          this.$refs.input.value = this.innerValue
+          this.$refs.input.value = this.innerValue !== void 0 ? this.innerValue : ''
         }
       })
     },
@@ -211,20 +217,17 @@ export default Vue.extend({
       const on = {
         ...this.$listeners,
         input: this.__onInput,
+        paste: this.__onPaste,
         // Safari < 10.2 & UIWebView doesn't fire compositionend when
         // switching focus before confirming composition choice
         // this also fixes the issue where some browsers e.g. iOS Chrome
         // fires "change" instead of "input" on autocomplete.
         change: this.__onChange,
-        compositionstart: this.__onCompositionStart,
-        compositionend: this.__onCompositionEnd,
         blur: this.__onFinishEditing,
         focus: stop
       }
 
-      if (this.$q.platform.is.android === true) {
-        on.compositionupdate = this.__onCompositionUpdate
-      }
+      on.compositionstart = on.compositionupdate = on.compositionend = this.__onComposition
 
       if (this.hasMask === true) {
         on.keydown = this.__onMaskedKeydown
@@ -232,19 +235,28 @@ export default Vue.extend({
 
       const attrs = {
         tabindex: 0,
-        autofocus: this.autofocus,
+        'data-autofocus': this.autofocus,
         rows: this.type === 'textarea' ? 6 : void 0,
         'aria-label': this.label,
+        name: this.nameProp,
         ...this.$attrs,
         id: this.targetUid,
         type: this.type,
-        maxlength: this.maxlength,
-        disabled: this.disable === true,
-        readonly: this.readonly === true
+        maxlength: this.maxlength
+      }
+
+      if (this.disable === true) {
+        attrs.disabled = ''
+        attrs['aria-disabled'] = ''
+      }
+      else if (this.readonly === true) {
+        attrs.readonly = ''
+        attrs['aria-readonly'] = ''
       }
 
       if (this.autogrow === true) {
         attrs.rows = 1
+        on.animationend = this.__adjustHeight
       }
 
       return h(this.isTextarea === true ? 'textarea' : 'input', {
@@ -258,16 +270,11 @@ export default Vue.extend({
           ? {
             value: this.hasOwnProperty('tempValue') === true
               ? this.tempValue
-              : this.innerValue
+              : (this.innerValue !== void 0 ? this.innerValue : '')
           }
-          : null
+          : this.formDomProps
       })
     }
-  },
-
-  created () {
-    // textarea only
-    this.__adjustHeightDebounce = debounce(this.__adjustHeight, 100)
   },
 
   mounted () {

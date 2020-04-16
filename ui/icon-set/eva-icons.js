@@ -28,8 +28,9 @@ export default {
   carousel: {
     left: 'eva-arrow-ios-back-outline',
     right: 'eva-arrow-ios-forward-outline',
-    navigationIcon: 'eva-radio-button-on',
-    thumbnails: 'eva-image-outline'
+    up: 'eva-arrow-ios-upward-outline',
+    down: 'eva-arrow-ios-downward-outline',
+    navigationIcon: 'eva-shield'
   },
   chip: {
     remove: 'eva-close',
@@ -67,10 +68,11 @@ export default {
     hr: 'remove',
     undo: 'undo',
     redo: 'redo',
-    header: 'format_size',
+    heading: 'format_size',
     code: 'code',
     size: 'format_size',
-    font: 'font_download'
+    font: 'font_download',
+    viewSource: 'eva-code'
   },
   expansionItem: {
     icon: 'eva-arrow-ios-downward-outline',

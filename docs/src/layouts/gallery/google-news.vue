@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpR fFf" class="bg-grey-1">
     <q-header elevated class="bg-white text-grey-8" height-hint="64">
       <q-toolbar class="GNL__toolbar">
         <q-btn
@@ -157,6 +157,8 @@
 </template>
 
 <script>
+import { fasGlobeAmericas, fasFlask } from '@quasar/extras/fontawesome-v5'
+
 export default {
   name: 'GoogleNewsLayout',
 
@@ -179,13 +181,13 @@ export default {
       ],
       links2: [
         { icon: 'flag', text: 'Canada' },
-        { icon: 'fas fa-globe-americas', text: 'World' },
+        { icon: fasGlobeAmericas, text: 'World' },
         { icon: 'place', text: 'Local' },
         { icon: 'domain', text: 'Business' },
         { icon: 'memory', text: 'Technology' },
         { icon: 'local_movies', text: 'Entertainment' },
         { icon: 'directions_bike', text: 'Sports' },
-        { icon: 'fas fa-flask', text: 'Science' },
+        { icon: fasFlask, text: 'Science' },
         { icon: 'fitness_center', text: 'Health ' }
       ],
       links3: [

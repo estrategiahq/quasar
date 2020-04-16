@@ -12,7 +12,7 @@ export default {
     radio () {
       this.$q.dialog({
         title: 'Options',
-        message: 'Choose your options',
+        message: 'Choose an option:',
         options: {
           type: 'radio',
           model: 'opt1',
@@ -26,18 +26,18 @@ export default {
         cancel: true,
         persistent: true
       }).onOk(data => {
-        console.log('>>>> OK, received', data)
+        // console.log('>>>> OK, received', data)
       }).onCancel(() => {
-        console.log('>>>> Cancel')
+        // console.log('>>>> Cancel')
       }).onDismiss(() => {
-        console.log('I am triggered on both OK and Cancel')
+        // console.log('I am triggered on both OK and Cancel')
       })
     },
 
     checkbox () {
       this.$q.dialog({
         title: 'Options',
-        message: 'Choose your options',
+        message: 'Choose your options:',
         options: {
           type: 'checkbox',
           model: [],
@@ -51,18 +51,18 @@ export default {
         cancel: true,
         persistent: true
       }).onOk(data => {
-        console.log('>>>> OK, received', data)
+        // console.log('>>>> OK, received', data)
       }).onCancel(() => {
-        console.log('>>>> Cancel')
+        // console.log('>>>> Cancel')
       }).onDismiss(() => {
-        console.log('I am triggered on both OK and Cancel')
+        // console.log('I am triggered on both OK and Cancel')
       })
     },
 
     toggle () {
       this.$q.dialog({
         title: 'Options',
-        message: 'Choose your options',
+        message: 'Choose your options:',
         options: {
           type: 'toggle',
           model: [],
@@ -76,11 +76,11 @@ export default {
         cancel: true,
         persistent: true
       }).onOk(data => {
-        console.log('>>>> OK, received', data)
+        // console.log('>>>> OK, received', data)
       }).onCancel(() => {
-        console.log('>>>> Cancel')
+        // console.log('>>>> Cancel')
       }).onDismiss(() => {
-        console.log('I am triggered on both OK and Cancel')
+        // console.log('I am triggered on both OK and Cancel')
       })
     }
   }

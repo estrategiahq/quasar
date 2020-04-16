@@ -3,6 +3,7 @@ const bus = new Vue()
 
 export default {
   publish: (evt, ...args) => bus.$emit(evt, ...args),
+  unsubscribe: (evt, ...args) => bus.$off(evt, ...args),
   subscribe: (evt, callback) => {
     if (typeof evt === 'string') {
       bus.$on(evt, callback)

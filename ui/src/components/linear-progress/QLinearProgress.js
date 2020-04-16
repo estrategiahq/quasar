@@ -1,21 +1,26 @@
 import Vue from 'vue'
 
-import slot from '../../utils/slot.js'
+import DarkMixin from '../../mixins/dark.js'
+import { getSizeMixin } from '../../mixins/size.js'
+import { mergeSlot } from '../../utils/slot.js'
 
 function width (val) {
   return { transform: `scale3d(${val},1,1)` }
 }
 
-const sizes = {
-  xs: 2,
-  sm: 4,
-  md: 6,
-  lg: 10,
-  xl: 14
-}
-
 export default Vue.extend({
   name: 'QLinearProgress',
+
+  mixins: [
+    DarkMixin,
+    getSizeMixin({
+      xs: 2,
+      sm: 4,
+      md: 6,
+      lg: 10,
+      xl: 14
+    })
+  ],
 
   props: {
     value: {
@@ -24,11 +29,8 @@ export default Vue.extend({
     },
     buffer: Number,
 
-    size: String,
-
     color: String,
     trackColor: String,
-    dark: Boolean,
 
     reverse: Boolean,
     stripe: Boolean,
@@ -38,22 +40,15 @@ export default Vue.extend({
   },
 
   computed: {
-    sizeStyle () {
-      if (this.size !== void 0) {
-        return { height: this.size in sizes ? `${sizes[this.size]}px` : this.size }
-      }
-    },
-
     motion () {
-      return this.indeterminate || this.query
+      return this.indeterminate === true || this.query === true
     },
 
     classes () {
-      return {
-        [`text-${this.color}`]: this.color !== void 0,
-        'q-linear-progress--reverse': this.reverse === true || this.query === true,
-        'rounded-borders': this.rounded === true
-      }
+      return 'q-linear-progress' +
+        (this.color !== void 0 ? ` text-${this.color}` : '') +
+        (this.reverse === true || this.query === true ? ' q-linear-progress--reverse' : '') +
+        (this.rounded === true ? ' rounded-borders' : '')
     },
 
     trackStyle () {
@@ -61,7 +56,7 @@ export default Vue.extend({
     },
 
     trackClass () {
-      return 'q-linear-progress__track--' + (this.dark === true ? 'dark' : 'light') +
+      return 'q-linear-progress__track--' + (this.isDark === true ? 'dark' : 'light') +
         (this.trackColor !== void 0 ? ` bg-${this.trackColor}` : '')
     },
 
@@ -75,16 +70,20 @@ export default Vue.extend({
 
     stripeStyle () {
       return { width: (this.value * 100) + '%' }
+    },
+
+    attrs () {
+      return {
+        role: 'progressbar',
+        'aria-valuemin': this.min,
+        'aria-valuemax': this.max,
+        'aria-valuenow': this.indeterminate === true ? void 0 : this.value
+      }
     }
   },
 
   render (h) {
-    return h('div', {
-      staticClass: 'q-linear-progress',
-      style: this.sizeStyle,
-      class: this.classes,
-      on: this.$listeners
-    }, [
+    const child = [
       h('div', {
         staticClass: 'q-linear-progress__track absolute-full',
         style: this.trackStyle,
@@ -95,12 +94,21 @@ export default Vue.extend({
         staticClass: 'q-linear-progress__model absolute-full',
         style: this.modelStyle,
         class: this.modelClasses
-      }),
+      })
+    ]
 
-      this.stripe === true && this.motion === false ? h('div', {
+    this.stripe === true && this.motion === false && child.push(
+      h('div', {
         staticClass: 'q-linear-progress__stripe absolute-full',
         style: this.stripeStyle
-      }) : null
-    ].concat(slot(this, 'default')))
+      })
+    )
+
+    return h('div', {
+      style: this.sizeStyle,
+      class: this.classes,
+      attrs: this.attrs,
+      on: this.$listeners
+    }, mergeSlot(child, this, 'default'))
   }
 })

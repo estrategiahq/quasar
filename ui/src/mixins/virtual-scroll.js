@@ -3,6 +3,8 @@ import frameDebounce from '../utils/frame-debounce.js'
 
 const aggBucketSize = 1000
 
+const slice = Array.prototype.slice
+
 function sumFn (acc, h) {
   return acc + h
 }
@@ -118,29 +120,34 @@ function sumSize (sizeAgg, size, from, to) {
   return total
 }
 
+const commonVirtScrollProps = {
+  virtualScrollSliceSize: {
+    type: Number,
+    default: 30
+  },
+
+  virtualScrollItemSize: {
+    type: Number,
+    default: 24
+  },
+
+  virtualScrollStickySizeStart: {
+    type: Number,
+    default: 0
+  },
+
+  virtualScrollStickySizeEnd: {
+    type: Number,
+    default: 0
+  }
+}
+
+export const commonVirtPropsList = Object.keys(commonVirtScrollProps)
+
 export default {
   props: {
     virtualScrollHorizontal: Boolean,
-
-    virtualScrollSliceSize: {
-      type: Number,
-      default: 30
-    },
-
-    virtualScrollItemSize: {
-      type: Number,
-      default: 24
-    },
-
-    virtualScrollStickySizeStart: {
-      type: Number,
-      default: 0
-    },
-
-    virtualScrollStickySizeEnd: {
-      type: Number,
-      default: 0
-    }
+    ...commonVirtScrollProps
   },
 
   data () {
@@ -152,10 +159,29 @@ export default {
   watch: {
     virtualScrollHorizontal () {
       this.__setVirtualScrollSize()
+    },
+
+    needsReset () {
+      this.reset()
+    }
+  },
+
+  computed: {
+    needsReset () {
+      return ['virtualScrollItemSize', 'virtualScrollHorizontal']
+        .map(p => this[p]).join(';')
     }
   },
 
   methods: {
+    reset () {
+      this.__resetVirtualScroll(this.prevToIndex, true)
+    },
+
+    refresh (toIndex) {
+      this.__resetVirtualScroll(toIndex === void 0 ? this.prevToIndex : toIndex)
+    },
+
     scrollTo (toIndex) {
       const scrollEl = this.__getVirtualScrollTarget()
 
@@ -205,12 +231,14 @@ export default {
       }
       this.prevScrollStart = void 0
 
+      this.__updateVirtualScrollSizes(this.virtualScrollSliceRange.from)
+
       if (scrollMaxStart > 0 && scrollDetails.scrollStart >= scrollMaxStart) {
         this.__setVirtualScrollSliceRange(
           scrollEl,
           scrollDetails,
           this.virtualScrollLength - 1,
-          scrollMaxStart - this.virtualScrollSizesAgg.reduce(sumFn, 0)
+          scrollDetails.scrollMaxSize - scrollDetails.offsetEnd - this.virtualScrollSizesAgg.reduce(sumFn, 0)
         )
 
         return
@@ -218,7 +246,8 @@ export default {
 
       let
         toIndex = 0,
-        listOffset = scrollDetails.scrollStart - scrollDetails.offsetStart
+        listOffset = scrollDetails.scrollStart - scrollDetails.offsetStart,
+        offset = listOffset
 
       for (let j = 0; listOffset >= this.virtualScrollSizesAgg[j] && toIndex < listLastIndex; j++) {
         listOffset -= this.virtualScrollSizesAgg[j]
@@ -227,14 +256,20 @@ export default {
 
       while (listOffset > 0 && toIndex < listLastIndex) {
         listOffset -= this.virtualScrollSizes[toIndex]
-        toIndex++
+        if (listOffset > -scrollDetails.scrollViewSize) {
+          toIndex++
+          offset = listOffset
+        }
+        else {
+          offset = this.virtualScrollSizes[toIndex] + listOffset
+        }
       }
 
       this.__setVirtualScrollSliceRange(
         scrollEl,
         scrollDetails,
         toIndex,
-        listOffset
+        offset
       )
     },
 
@@ -248,11 +283,11 @@ export default {
         from = Math.max(0, to - this.virtualScrollSliceSizeComputed)
       }
 
-      this.__emitScroll(toIndex)
-
       const rangeChanged = from !== this.virtualScrollSliceRange.from || to !== this.virtualScrollSliceRange.to
 
       if (rangeChanged === false && align === void 0) {
+        this.__emitScroll(toIndex)
+
         return
       }
 
@@ -264,22 +299,7 @@ export default {
 
       this.$nextTick(() => {
         if (rangeChanged === true) {
-          const contentEl = this.$refs.content
-
-          if (contentEl !== void 0) {
-            const children = contentEl.children
-
-            for (let i = children.length - 1; i >= 0; i--) {
-              const
-                index = from + i,
-                diff = children[i][this.virtualScrollHorizontal === true ? 'offsetWidth' : 'offsetHeight'] - this.virtualScrollSizes[index]
-
-              if (diff !== 0) {
-                this.virtualScrollSizes[index] += diff
-                this.virtualScrollSizesAgg[Math.floor(index / aggBucketSize)] += diff
-              }
-            }
-          }
+          this.__updateVirtualScrollSizes(from)
         }
 
         const
@@ -301,13 +321,49 @@ export default {
           scrollPosition,
           this.virtualScrollHorizontal
         )
+
+        this.__emitScroll(toIndex)
       })
     },
 
-    __resetVirtualScroll (toIndex) {
+    __updateVirtualScrollSizes (from) {
+      const contentEl = this.$refs.content
+
+      if (contentEl !== void 0) {
+        const
+          children = slice.call(contentEl.children).filter(el => el.classList.contains('q-virtual-scroll--skip') === false),
+          childrenLength = children.length,
+          sizeProp = this.virtualScrollHorizontal === true ? 'offsetWidth' : 'offsetHeight'
+
+        let
+          index = from,
+          size, diff
+
+        for (let i = 0; i < childrenLength;) {
+          size = children[i][sizeProp]
+          i++
+
+          while (i < childrenLength && children[i].classList.contains('q-virtual-scroll--with-prev') === true) {
+            size += children[i][sizeProp]
+            i++
+          }
+
+          diff = size - this.virtualScrollSizes[index]
+
+          if (diff !== 0) {
+            this.virtualScrollSizes[index] += diff
+            this.virtualScrollSizesAgg[Math.floor(index / aggBucketSize)] += diff
+          }
+
+          index++
+        }
+      }
+    },
+
+    __resetVirtualScroll (toIndex, fullReset) {
       const defaultSize = this.virtualScrollItemSize
 
-      if (Array.isArray(this.virtualScrollSizes) === false) {
+      if (fullReset === true || Array.isArray(this.virtualScrollSizes) === false) {
         this.virtualScrollSizes = []
       }
 
@@ -334,6 +390,8 @@ export default {
       this.prevScrollStart = void 0
 
       if (toIndex >= 0) {
+        this.__updateVirtualScrollSizes(this.virtualScrollSliceRange.from)
+
         this.$nextTick(() => {
           this.scrollTo(toIndex)
         })
@@ -417,7 +475,8 @@ export default {
           index,
           from: this.virtualScrollSliceRange.from,
           to: this.virtualScrollSliceRange.to - 1,
-          direction: index < this.prevToIndex ? 'decrease' : 'increase'
+          direction: index < this.prevToIndex ? 'decrease' : 'increase',
+          ref: this
         })
 
         this.prevToIndex = index
@@ -433,9 +492,5 @@ export default {
     this.__onVirtualScrollEvt = debounce(this.__onVirtualScrollEvt, 70)
     this.__setScroll = frameDebounce(setScroll)
     this.__setVirtualScrollSize()
-  },
-
-  beforeDestroy () {
-    clearTimeout(this.__preventNextScroll)
   }
 }

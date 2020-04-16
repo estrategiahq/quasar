@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "docsUrl": "https://v1.quasar.dev/vue-components/tree"
+  },
+
   "props": {
     "nodes": {
       "type": "Array",
@@ -22,6 +26,13 @@
       "default": "label",
       "examples": [ "name", "description" ],
       "category": "content"
+    },
+
+    "no-connectors": {
+      "type": "Boolean",
+      "desc": "Do not display the connector lines between nodes",
+      "category": "style",
+      "addedIn": "v1.5.10"
     },
 
     "color": {
@@ -104,7 +115,7 @@
 
     "filter-method": {
       "type": "Function",
-      "desc": "The function to use to filter the tree nodes",
+      "desc": "The function to use to filter the tree nodes; For best performance, reference it from your scope and do not define it inline",
       "default": "(see source code)",
       "params": {
         "node": {
@@ -382,6 +393,16 @@
           "examples": [ "Node 1" ]
         }
       }
+    },
+
+    "after-show": {
+      "extends": "after-show",
+      "addedIn": "v1.9.0"
+    },
+
+    "after-hide": {
+      "extends": "after-hide",
+      "addedIn": "v1.9.0"
     }
   },
 

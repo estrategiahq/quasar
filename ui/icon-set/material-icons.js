@@ -28,8 +28,9 @@ export default {
   carousel: {
     left: 'chevron_left',
     right: 'chevron_right',
-    navigationIcon: 'lens',
-    thumbnails: 'view_carousel'
+    up: 'keyboard_arrow_up',
+    down: 'keyboard_arrow_down',
+    navigationIcon: 'lens'
   },
   chip: {
     remove: 'cancel',
@@ -67,10 +68,11 @@ export default {
     hr: 'remove',
     undo: 'undo',
     redo: 'redo',
-    header: 'format_size',
+    heading: 'format_size',
     code: 'code',
     size: 'format_size',
-    font: 'font_download'
+    font: 'font_download',
+    viewSource: 'code'
   },
   expansionItem: {
     icon: 'keyboard_arrow_down',

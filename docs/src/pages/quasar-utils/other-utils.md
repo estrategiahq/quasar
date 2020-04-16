@@ -1,6 +1,6 @@
 ---
 title: Other Utils
-desc: A set of miscellaneous Quasar methods for debouncing or throttling functions, deep copying objects, cross-platform URL opening or handling DOM events. 
+desc: A set of miscellaneous Quasar methods for debouncing or throttling functions, deep copying objects, cross-platform URL opening or handling DOM events.
 ---
 
 ::: tip
@@ -14,11 +14,57 @@ import { openURL } from 'quasar'
 openURL('http://...')
 ```
 
-It will take care of the quirks involved when running under Cordova, Electron or on a browser, including notifying the user he/she has to acknowledge opening popups. 
+It will take care of the quirks involved when running under Cordova, Electron or on a browser, including notifying the user he/she has to acknowledge opening popups.
+
+When wrapping with Cordova (or Capacitor), it's best (but not "a must do") if [InAppBrowser](https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-inappbrowser/) Cordova plugin is also installed, so that openURL can hook into that.
 
 ::: tip
 If you want to open the telephone dialer in a Cordova app, don't use `openURL()`. Instead you should directly use `<a href="tel:123456789">` tags or `<QBtn type="a" href="tel:123456789">`
 :::
+
+## Copy to Clipboard <q-badge align="top" label="v1.5+" />
+
+The following is a helper to copy some text to Clipboard. The method returns a Promise.
+
+``` js
+import { copyToClipboard } from 'quasar'
+
+copyToClipboard('some text')
+  .then(() => {
+    // success!
+  })
+  .catch(() => {
+    // fail
+  })
+```
+
+## Export file <q-badge align="top" label="v1.5+" />
+
+The following is a helper to trigger a file download.
+
+``` js
+import { exportFile } from 'quasar'
+
+// mimeType is optional;
+// default mimeType is "text/plain"
+(status) exportFile(fileName, rawData[, mimeType])
+```
+
+The simplest example:
+
+``` js
+import { exportFile } from 'quasar'
+
+const status = exportFile('important.txt', 'Some important content')
+
+if (status === true) {
+  // browser allowed it
+}
+else {
+  // browser denied it
+  console.log('Error: ' + status)
+}
+```
 
 ## Debounce Function
 If your App uses JavaScript to accomplish taxing tasks, a debounce function is essential to ensuring a given task doesn't fire so often that it bricks browser performance. Debouncing a function limits the rate at which the function can fire.
@@ -40,7 +86,7 @@ import { debounce } from 'quasar'
 window.addEventListener(
   'resize',
   debounce(function() {
-    .... things to do ...
+    // .... things to do ...
   }, 300 /*ms to wait*/)
 )
 ```
@@ -58,7 +104,7 @@ created () {
 ```
 
 ::: warning
-Debouncing your functions using a method declaration like `myMethod: debounce(function () { // Code }, 500)` will mean that the debounced method will be shared between *all* rendered instances of this component, so debouncing is also shared. This should be avoided by following the code snippet above.
+Debouncing your functions using a method declaration like `myMethod: debounce(function () { // Code }, 500)` will mean that the debounced method will be shared between *all* rendered instances of this component, so debouncing is also shared. Moreover, `this.myMethod.cancel()` won't work, because Vue wraps each method with another function to ensure proper `this` binding. This should be avoided by following the code snippet above.
 :::
 
 There's also a `frameDebounce` available which delays calling your function until next browser frame is scheduled to run (read about `requestAnimationFrame`).

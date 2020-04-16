@@ -28,8 +28,9 @@ export default {
   carousel: {
     left: 'fas fa-chevron-left',
     right: 'fas fa-chevron-right', // TODO
-    navigationIcon: 'fas fa-circle',
-    thumbnails: 'fas fa-th'
+    up: 'fas fa-chevron-up',
+    down: 'fas fa-chevron-down',
+    navigationIcon: 'fas fa-circle'
   },
   chip: {
     remove: 'fas fa-times-circle',
@@ -67,10 +68,11 @@ export default {
     hr: 'far fa-minus-square',
     undo: 'fas fa-undo',
     redo: 'fas fa-redo',
-    header: 'fas fa-heading',
+    heading: 'fas fa-heading',
     code: 'fas fa-code',
     size: 'fas fa-text-height',
-    font: 'fas fa-font'
+    font: 'fas fa-font',
+    viewSource: 'fas fa-code'
   },
   expansionItem: {
     icon: 'fas fa-chevron-down',

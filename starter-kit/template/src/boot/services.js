@@ -1,6 +1,4 @@
 import axios from 'axios'
-import gql from 'graphql-tag'
-import apollo from '../libs/apollo'
 import bus from '../libs/bus'
 import { events } from '../constants'
 
@@ -35,9 +33,8 @@ instance.interceptors.response.use(function (config) {
 })
 
 const deps = {
-  axios: instance,
-  gql,
-  apollo
+  http: instance,
+  axios: axios
 }
 
 const requireFile = require.context(

@@ -14,7 +14,8 @@ export default Vue.extend({
   },
 
   inject: {
-    __activateRoute: {}
+    __activateRoute: {},
+    __recalculateScroll: {}
   },
 
   watch: {
@@ -30,10 +31,10 @@ export default Vue.extend({
       }
 
       if (keyboard === true) {
-        this.$el.focus()
+        this.$el.focus(e)
       }
       else {
-        this.$refs.blurTarget !== void 0 && this.$refs.blurTarget.focus()
+        this.$refs.blurTarget !== void 0 && this.$refs.blurTarget.focus(e)
       }
     },
 
@@ -61,14 +62,16 @@ export default Vue.extend({
   },
 
   mounted () {
+    this.__recalculateScroll()
     this.$router !== void 0 && this.__checkActivation()
   },
 
   beforeDestroy () {
+    this.__recalculateScroll()
     this.__activateRoute({ remove: true, name: this.name })
   },
 
   render (h) {
-    return this.__render(h, 'router-link', this.routerLinkProps)
+    return this.__renderTab(h, 'router-link', this.routerLinkProps)
   }
 })

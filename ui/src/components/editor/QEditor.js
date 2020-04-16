@@ -4,15 +4,17 @@ import { getToolbar, getFonts, getLinkEditor } from './editor-utils.js'
 import { Caret } from './editor-caret.js'
 
 import FullscreenMixin from '../../mixins/fullscreen.js'
-import { isSSR } from '../../plugins/Platform.js'
+import DarkMixin from '../../mixins/dark.js'
 
+import { isSSR } from '../../plugins/Platform.js'
 import { stopAndPrevent } from '../../utils/event.js'
 import extend from '../../utils/extend.js'
+import { shouldIgnoreKey } from '../../utils/key-composition.js'
 
 export default Vue.extend({
   name: 'QEditor',
 
-  mixins: [ FullscreenMixin ],
+  mixins: [ FullscreenMixin, DarkMixin ],
 
   props: {
     value: {
@@ -29,6 +31,7 @@ export default Vue.extend({
     height: String,
     definitions: Object,
     fonts: Object,
+    placeholder: String,
 
     toolbar: {
       type: Array,
@@ -109,6 +112,7 @@ export default Vue.extend({
         superscript: { cmd: 'superscript', icon: i.superscript, tip: e.superscript, htmlTip: 'x<superscript>2</superscript>' },
         link: { cmd: 'link', disable: vm => vm.caret && !vm.caret.can('link'), icon: i.hyperlink, tip: e.hyperlink, key: 76 },
         fullscreen: { cmd: 'fullscreen', icon: i.toggleFullscreen, tip: e.toggleFullscreen, key: 70 },
+        viewsource: { cmd: 'viewsource', icon: i.viewSource, tip: e.viewSource },
 
         quote: { cmd: 'formatBlock', param: 'BLOCKQUOTE', icon: i.quote, tip: e.quote, key: 81 },
         left: { cmd: 'justifyLeft', icon: i.left, tip: e.left },
@@ -124,22 +128,22 @@ export default Vue.extend({
         undo: { type: 'no-state', cmd: 'undo', icon: i.undo, tip: e.undo, key: 90 },
         redo: { type: 'no-state', cmd: 'redo', icon: i.redo, tip: e.redo, key: 89 },
 
-        h1: { cmd: 'formatBlock', param: 'H1', icon: i.header, tip: e.header1, htmlTip: `<h1 class="q-ma-none">${e.header1}</h1>` },
-        h2: { cmd: 'formatBlock', param: 'H2', icon: i.header, tip: e.header2, htmlTip: `<h2 class="q-ma-none">${e.header2}</h2>` },
-        h3: { cmd: 'formatBlock', param: 'H3', icon: i.header, tip: e.header3, htmlTip: `<h3 class="q-ma-none">${e.header3}</h3>` },
-        h4: { cmd: 'formatBlock', param: 'H4', icon: i.header, tip: e.header4, htmlTip: `<h4 class="q-ma-none">${e.header4}</h4>` },
-        h5: { cmd: 'formatBlock', param: 'H5', icon: i.header, tip: e.header5, htmlTip: `<h5 class="q-ma-none">${e.header5}</h5>` },
-        h6: { cmd: 'formatBlock', param: 'H6', icon: i.header, tip: e.header6, htmlTip: `<h6 class="q-ma-none">${e.header6}</h6>` },
-        p: { cmd: 'formatBlock', param: 'DIV', icon: i.header, tip: e.paragraph },
+        h1: { cmd: 'formatBlock', param: 'H1', icon: i.heading1 || i.heading, tip: e.heading1, htmlTip: `<h1 class="q-ma-none">${e.heading1}</h1>` },
+        h2: { cmd: 'formatBlock', param: 'H2', icon: i.heading2 || i.heading, tip: e.heading2, htmlTip: `<h2 class="q-ma-none">${e.heading2}</h2>` },
+        h3: { cmd: 'formatBlock', param: 'H3', icon: i.heading3 || i.heading, tip: e.heading3, htmlTip: `<h3 class="q-ma-none">${e.heading3}</h3>` },
+        h4: { cmd: 'formatBlock', param: 'H4', icon: i.heading4 || i.heading, tip: e.heading4, htmlTip: `<h4 class="q-ma-none">${e.heading4}</h4>` },
+        h5: { cmd: 'formatBlock', param: 'H5', icon: i.heading5 || i.heading, tip: e.heading5, htmlTip: `<h5 class="q-ma-none">${e.heading5}</h5>` },
+        h6: { cmd: 'formatBlock', param: 'H6', icon: i.heading6 || i.heading, tip: e.heading6, htmlTip: `<h6 class="q-ma-none">${e.heading6}</h6>` },
+        p: { cmd: 'formatBlock', param: 'DIV', icon: i.heading, tip: e.paragraph },
         code: { cmd: 'formatBlock', param: 'PRE', icon: i.code, htmlTip: `<code>${e.code}</code>` },
 
-        'size-1': { cmd: 'fontSize', param: '1', icon: i.size, tip: e.size1, htmlTip: `<font size="1">${e.size1}</font>` },
-        'size-2': { cmd: 'fontSize', param: '2', icon: i.size, tip: e.size2, htmlTip: `<font size="2">${e.size2}</font>` },
-        'size-3': { cmd: 'fontSize', param: '3', icon: i.size, tip: e.size3, htmlTip: `<font size="3">${e.size3}</font>` },
-        'size-4': { cmd: 'fontSize', param: '4', icon: i.size, tip: e.size4, htmlTip: `<font size="4">${e.size4}</font>` },
-        'size-5': { cmd: 'fontSize', param: '5', icon: i.size, tip: e.size5, htmlTip: `<font size="5">${e.size5}</font>` },
-        'size-6': { cmd: 'fontSize', param: '6', icon: i.size, tip: e.size6, htmlTip: `<font size="6">${e.size6}</font>` },
-        'size-7': { cmd: 'fontSize', param: '7', icon: i.size, tip: e.size7, htmlTip: `<font size="7">${e.size7}</font>` }
+        'size-1': { cmd: 'fontSize', param: '1', icon: i.size1 || i.size, tip: e.size1, htmlTip: `<font size="1">${e.size1}</font>` },
+        'size-2': { cmd: 'fontSize', param: '2', icon: i.size2 || i.size, tip: e.size2, htmlTip: `<font size="2">${e.size2}</font>` },
+        'size-3': { cmd: 'fontSize', param: '3', icon: i.size3 || i.size, tip: e.size3, htmlTip: `<font size="3">${e.size3}</font>` },
+        'size-4': { cmd: 'fontSize', param: '4', icon: i.size4 || i.size, tip: e.size4, htmlTip: `<font size="4">${e.size4}</font>` },
+        'size-5': { cmd: 'fontSize', param: '5', icon: i.size5 || i.size, tip: e.size5, htmlTip: `<font size="5">${e.size5}</font>` },
+        'size-6': { cmd: 'fontSize', param: '6', icon: i.size6 || i.size, tip: e.size6, htmlTip: `<font size="6">${e.size6}</font>` },
+        'size-7': { cmd: 'fontSize', param: '7', icon: i.size7 || i.size, tip: e.size7, htmlTip: `<font size="7">${e.size7}</font>` }
       }
     },
 
@@ -233,25 +237,36 @@ export default Vue.extend({
           this.contentStyle
         ]
     },
+
     innerClass () {
       return [
         this.contentClass,
         { col: this.inFullscreen, 'overflow-auto': this.inFullscreen || this.maxHeight }
       ]
+    },
+
+    attrs () {
+      if (this.disable === true) {
+        return { 'aria-disabled': '' }
+      }
+      if (this.readonly === true) {
+        return { 'aria-readonly': '' }
+      }
     }
   },
 
   data () {
     return {
       editWatcher: true,
-      editLinkUrl: null
+      editLinkUrl: null,
+      isViewingSource: false
     }
   },
 
   watch: {
     value (v) {
-      if (this.editWatcher) {
-        this.$refs.content.innerHTML = v
+      if (this.editWatcher === true) {
+        this.__setContent(v)
       }
       else {
         this.editWatcher = true
@@ -261,8 +276,11 @@ export default Vue.extend({
 
   methods: {
     __onInput () {
-      if (this.editWatcher) {
-        const val = this.$refs.content.innerHTML
+      if (this.editWatcher === true && this.$refs.content !== void 0) {
+        const val = this.isViewingSource
+          ? this.$refs.content.innerText
+          : this.$refs.content.innerHTML
+
         if (val !== this.value) {
           this.editWatcher = false
           this.$emit('input', val)
@@ -273,7 +291,7 @@ export default Vue.extend({
     __onKeydown (e) {
       this.$emit('keydown', e)
 
-      if (!e.ctrlKey) {
+      if (e.ctrlKey !== true || shouldIgnoreKey(e) === true) {
         this.refreshToolbar()
         this.$q.platform.is.ie && this.$nextTick(this.__onInput)
         return
@@ -294,14 +312,49 @@ export default Vue.extend({
     },
 
     __onBlur () {
-      this.caret.save()
+      if (this.$refs.content !== void 0) {
+        const { scrollTop, scrollHeight } = this.$refs.content
+        this.__offsetBottom = scrollHeight - scrollTop
+      }
+      this.$q.platform.is.ie !== true && this.caret.save()
       this.$emit('blur')
+    },
+
+    __onFocus () {
+      this.$nextTick(() => {
+        if (this.$refs.content !== void 0 && this.__offsetBottom !== void 0) {
+          this.$refs.content.scrollTop = this.$refs.content.scrollHeight - this.__offsetBottom
+        }
+      })
+    },
+
+    __onMouseup (e) {
+      this.caret.save()
+      if (this.$listeners.mouseup !== void 0) {
+        this.$emit('mouseup', e)
+      }
+    },
+
+    __onKeyup (e) {
+      this.caret.save()
+      if (this.$listeners.keyup !== void 0) {
+        this.$emit('keyup', e)
+      }
+    },
+
+    __onTouchend (e) {
+      this.caret.save()
+      if (this.$listeners.touchend !== void 0) {
+        this.$emit('touchend', e)
+      }
     },
 
     runCmd (cmd, param, update = true) {
       this.focus()
+      this.caret.restore()
       this.caret.apply(cmd, param, () => {
         this.focus()
+        this.caret.save()
         if (this.$q.platform.is.ie === true || this.$q.platform.is.edge === true) {
           this.$nextTick(this.__onInput)
         }
@@ -319,11 +372,22 @@ export default Vue.extend({
     },
 
     focus () {
-      this.$refs.content.focus()
+      this.$refs.content !== void 0 && this.$refs.content.focus()
     },
 
     getContentEl () {
       return this.$refs.content
+    },
+
+    __setContent (v) {
+      if (this.$refs.content !== void 0) {
+        if (this.isViewingSource) {
+          this.$refs.content.innerText = v
+        }
+        else {
+          this.$refs.content.innerHTML = v
+        }
+      }
     }
   },
 
@@ -336,7 +400,7 @@ export default Vue.extend({
 
   mounted () {
     this.caret = new Caret(this.$refs.content, this)
-    this.$refs.content.innerHTML = this.value
+    this.__setContent(this.value)
     this.refreshToolbar()
   },
 
@@ -359,7 +423,7 @@ export default Vue.extend({
           key: 'qedt_btm',
           staticClass: 'q-editor__toolbar row no-wrap items-center scroll-x',
           class: this.toolbarBackgroundClass
-        }, getLinkEditor(h, this))
+        }, getLinkEditor(h, this, this.$q.platform.is.ie))
       )
 
       toolbars = h('div', {
@@ -368,20 +432,36 @@ export default Vue.extend({
       }, bars)
     }
 
+    const on = {
+      ...this.$listeners,
+      input: this.__onInput,
+      keydown: this.__onKeydown,
+      click: this.__onClick,
+      blur: this.__onBlur,
+      focus: this.__onFocus,
+
+      // save caret
+      mouseup: this.__onMouseup,
+      keyup: this.__onKeyup,
+      touchend: this.__onTouchend
+    }
+
     return h(
       'div',
       {
         staticClass: 'q-editor',
         style: {
-          height: this.inFullscreen ? '100vh' : null
+          height: this.inFullscreen === true ? '100vh' : null
         },
         'class': {
           disabled: this.disable,
           'fullscreen column': this.inFullscreen,
           'q-editor--square no-border-radius': this.square,
           'q-editor--flat': this.flat,
-          'q-editor--dense': this.dense
-        }
+          'q-editor--dense': this.dense,
+          'q-editor--dark q-dark': this.isDark
+        },
+        attrs: this.attrs
       },
       [
         toolbars,
@@ -393,17 +473,14 @@ export default Vue.extend({
             staticClass: `q-editor__content`,
             style: this.innerStyle,
             class: this.innerClass,
-            attrs: { contenteditable: this.editable },
+            attrs: {
+              contenteditable: this.editable,
+              placeholder: this.placeholder
+            },
             domProps: isSSR
               ? { innerHTML: this.value }
               : undefined,
-            on: {
-              ...this.$listeners,
-              input: this.__onInput,
-              keydown: this.__onKeydown,
-              click: this.__onClick,
-              blur: this.__onBlur
-            }
+            on
           }
         )
       ]

@@ -4,6 +4,7 @@ import QDialog from '../dialog/QDialog.js'
 import QBtn from '../btn/QBtn.js'
 
 import clone from '../../utils/clone.js'
+import { isKeyCode } from '../../utils/key-composition.js'
 
 import QCard from '../card/QCard.js'
 import QCardSection from '../card/QCardSection.js'
@@ -12,8 +13,14 @@ import QCardActions from '../card/QCardActions.js'
 import QInput from '../input/QInput.js'
 import QOptionGroup from '../option-group/QOptionGroup.js'
 
+import DarkMixin from '../../mixins/dark.js'
+
+import { cache } from '../../utils/vm.js'
+
 export default Vue.extend({
   name: 'DialogPlugin',
+
+  mixins: [ DarkMixin ],
 
   inheritAttrs: false,
 
@@ -30,67 +37,84 @@ export default Vue.extend({
       default: true
     },
     cancel: [String, Object, Boolean],
+    focus: {
+      type: String,
+      default: 'ok',
+      validator: v => ['ok', 'cancel', 'none'].includes(v)
+    },
 
     stackButtons: Boolean,
     color: String,
 
     cardClass: [String, Array, Object],
-    cardStyle: [String, Array, Object],
-
-    dark: Boolean
+    cardStyle: [String, Array, Object]
   },
 
   computed: {
     hasForm () {
-      return this.prompt || this.options
+      return this.prompt !== void 0 || this.options !== void 0
     },
 
     okLabel () {
-      return this.ok === true
+      return Object(this.ok) === this.ok
         ? this.$q.lang.label.ok
-        : this.ok
+        : (
+          this.ok === true
+            ? this.$q.lang.label.ok
+            : this.ok
+        )
     },
 
     cancelLabel () {
-      return this.cancel === true
+      return Object(this.cancel) === this.cancel
         ? this.$q.lang.label.cancel
-        : this.cancel
+        : (
+          this.cancel === true
+            ? this.$q.lang.label.cancel
+            : this.cancel
+        )
     },
 
     vmColor () {
-      return this.color || (this.dark === true ? 'amber' : 'primary')
+      return this.color || (this.isDark === true ? 'amber' : 'primary')
+    },
+
+    okDisabled () {
+      if (this.prompt !== void 0) {
+        return this.prompt.isValid !== void 0 &&
+          this.prompt.isValid(this.prompt.model) !== true
+      }
+      if (this.options !== void 0) {
+        return this.options.isValid !== void 0 &&
+          this.options.isValid(this.options.model) !== true
+      }
     },
 
     okProps () {
-      return Object(this.ok) === this.ok
-        ? {
+      return Object.assign(
+        {
           color: this.vmColor,
-          label: this.$q.lang.label.ok,
-          ripple: false,
-          ...this.ok
-        }
-        : {
-          color: this.vmColor,
-          flat: true,
           label: this.okLabel,
           ripple: false
-        }
+        },
+        Object(this.ok) === this.ok
+          ? this.ok
+          : { flat: true },
+        { disable: this.okDisabled }
+      )
     },
 
     cancelProps () {
-      return Object(this.cancel) === this.cancel
-        ? {
+      return Object.assign(
+        {
           color: this.vmColor,
-          label: this.$q.lang.label.cancel,
-          ripple: false,
-          ...this.cancel
-        }
-        : {
-          color: this.vmColor,
-          flat: true,
           label: this.cancelLabel,
           ripple: false
-        }
+        },
+        Object(this.cancel) === this.cancel
+          ? this.cancel
+          : { flat: true }
+      )
     }
   },
 
@@ -108,21 +132,31 @@ export default Vue.extend({
         h(QInput, {
           props: {
             value: this.prompt.model,
-            type: this.prompt.type || 'text',
+            type: this.prompt.type,
+            label: this.prompt.label,
+            stackLabel: this.prompt.stackLabel,
+            outlined: this.prompt.outlined,
+            filled: this.prompt.filled,
+            standout: this.prompt.standout,
             color: this.vmColor,
             dense: true,
             autofocus: true,
-            dark: this.dark
+            dark: this.isDark
           },
-          on: {
+          attrs: this.prompt.attrs,
+          on: cache(this, 'prompt', {
             input: v => { this.prompt.model = v },
             keyup: evt => {
               // if ENTER key
-              if (this.prompt.type !== 'textarea' && evt.keyCode === 13) {
+              if (
+                this.okDisabled !== true &&
+                this.prompt.type !== 'textarea' &&
+                isKeyCode(evt, 13) === true
+              ) {
                 this.onOk()
               }
             }
-          }
+          })
         })
       ]
     },
@@ -136,11 +170,11 @@ export default Vue.extend({
             color: this.vmColor,
             inline: this.options.inline,
             options: this.options.items,
-            dark: this.dark
+            dark: this.isDark
           },
-          on: {
+          on: cache(this, 'opts', {
             input: v => { this.options.model = v }
-          }
+          })
         })
       ]
     },
@@ -148,20 +182,17 @@ export default Vue.extend({
     getButtons (h) {
       const child = []
 
-      if (this.cancel) {
-        child.push(h(QBtn, {
-          props: this.cancelProps,
-          attrs: { autofocus: !this.prompt && !this.ok },
-          on: { click: this.onCancel }
-        }))
-      }
-      if (this.ok) {
-        child.push(h(QBtn, {
-          props: this.okProps,
-          attrs: { autofocus: !this.prompt },
-          on: { click: this.onOk }
-        }))
-      }
+      this.cancel && child.push(h(QBtn, {
+        props: this.cancelProps,
+        attrs: { 'data-autofocus': this.focus === 'cancel' && this.hasForm !== true },
+        on: cache(this, 'cancel', { click: this.onCancel })
+      }))
+
+      this.ok && child.push(h(QBtn, {
+        props: this.okProps,
+        attrs: { 'data-autofocus': this.focus === 'ok' && this.hasForm !== true },
+        on: cache(this, 'ok', { click: this.onOk })
+      }))
 
       if (child.length > 0) {
         return h(QCardActions, {
@@ -184,21 +215,16 @@ export default Vue.extend({
     },
 
     getData () {
-      if (this.prompt) {
-        return this.prompt.model
-      }
-      if (this.options) {
-        return this.options.model
-      }
+      return this.prompt !== void 0
+        ? this.prompt.model
+        : (this.options !== void 0 ? this.options.model : void 0)
     },
 
     getSection (h, staticClass, text) {
       return this.html === true
         ? h(QCardSection, {
           staticClass,
-          domProps: {
-            innerHTML: text
-          }
+          domProps: { innerHTML: text }
         })
         : h(QCardSection, { staticClass }, [ text ])
     }
@@ -207,27 +233,23 @@ export default Vue.extend({
   render (h) {
     const child = []
 
-    if (this.title) {
-      child.push(
-        this.getSection(h, 'q-dialog__title', this.title)
-      )
-    }
+    this.title && child.push(
+      this.getSection(h, 'q-dialog__title', this.title)
+    )
 
-    if (this.message) {
-      child.push(
-        this.getSection(h, 'q-dialog__message scroll', this.message)
-      )
-    }
+    this.message && child.push(
+      this.getSection(h, 'q-dialog__message scroll', this.message)
+    )
 
-    if (this.hasForm) {
-      child.push(
-        h(
-          QCardSection,
-          { staticClass: 'scroll' },
-          this.prompt ? this.getPrompt(h) : this.getOptions(h)
-        )
+    this.hasForm === true && child.push(
+      h(
+        QCardSection,
+        { staticClass: 'scroll' },
+        this.prompt !== void 0
+          ? this.getPrompt(h)
+          : this.getOptions(h)
       )
-    }
+    )
 
     if (this.ok || this.cancel) {
       child.push(this.getButtons(h))
@@ -241,20 +263,18 @@ export default Vue.extend({
         value: this.value
       },
 
-      on: {
+      on: cache(this, 'hide', {
         hide: () => {
           this.$emit('hide')
         }
-      }
+      })
     }, [
       h(QCard, {
         staticClass: 'q-dialog-plugin' +
-          (this.dark === true ? ' q-dialog-plugin--dark' : ''),
+          (this.isDark === true ? ' q-dialog-plugin--dark q-dark' : ''),
         style: this.cardStyle,
         class: this.cardClass,
-        props: {
-          dark: this.dark
-        }
+        props: { dark: this.isDark }
       }, child)
     ])
   }

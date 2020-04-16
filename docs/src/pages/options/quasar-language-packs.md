@@ -62,7 +62,7 @@ Include the language pack JS tag for your Quasar version and also tell Quasar to
 </script>
 ```
 
-Check what tags you need to include in your HTML files by generating a sample with `$ quasar create <folder> --kit umd` and specifying a language code for Quasar Language Pack (other than the default "en-us").
+Check what tags you need to include in your HTML files on [UMD / Standalone](/start/umd) page.
 
 ### Dynamically Picking Default Language
 Quasar CLI: If your desired Quasar Language Pack must be dynamically selected (example: depends on a cookie), then you need to create a boot file: `$ quasar new boot quasar-lang-pack`. This will create `/src/boot/quasar-lang-pack.js` file. Edit it to:
@@ -77,7 +77,10 @@ export default async () => {
   const langIso = 'de' // ... some logic to determine it (use Cookies Plugin?)
 
   try {
-    await import(`quasar/lang/${langIso}`)
+    await import(
+      /* webpackInclude: /(de|en-us)\.js$/ */
+      'quasar/lang/' + langIso
+      )
       .then(lang => {
         Quasar.lang.set(lang.default)
       })
@@ -95,6 +98,10 @@ boot: [
   'quasar-lang-pack'
 ]
 ```
+
+::: warning Always constrain a dynamic import
+Notice the use of the [Webpack magic comment](https://webpack.js.org/api/module-methods/#magic-comments) `webpackInclude`. Otherwise all the available language packs will be bundled, resulting in an increase in the compilation time and the bundle size. See [Caveat for dynamic imports](https://quasar.dev/quasar-cli/cli-documentation/lazy-loading#Caveat-for-dynamic-imports)
+:::
 
 ## Change Quasar Language Pack at Runtime
 Example with a QSelect to dynamically change the Quasar components language:
@@ -115,6 +122,9 @@ Example with a QSelect to dynamically change the Quasar components language:
 
 <script>
 import languages from 'quasar/lang/index.json'
+const appLanguages = languages.filter(lang =>
+  [ 'de', 'en-us' ].includes(lang.isoName)
+)
 
 export default {
   data () {
@@ -126,14 +136,17 @@ export default {
   watch: {
     lang (lang) {
       // dynamic import, so loading on demand only
-      import(`quasar/lang/${lang}`).then(lang => {
+      import(
+        /* webpackInclude: /(de|en-us)\.js$/ */
+        'quasar/lang/' + lang
+        ).then(lang => {
         this.$q.lang.set(lang.default)
       })
     }
   },
 
   created () {
-    this.langOptions = languages.map(lang => ({
+    this.langOptions = appLanguages.map(lang => ({
       label: lang.nativeName, value: lang.isoName
     }))
   }

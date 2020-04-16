@@ -3,11 +3,17 @@ import Vue from 'vue'
 import QBtn from '../btn/QBtn.js'
 import QInput from '../input/QInput.js'
 
+import DarkMixin from '../../mixins/dark.js'
+
 import { stop } from '../../utils/event.js'
 import { between } from '../../utils/format.js'
+import { isKeyCode } from '../../utils/key-composition.js'
+import { cache } from '../../utils/vm.js'
 
 export default Vue.extend({
   name: 'QPagination',
+
+  mixins: [ DarkMixin ],
 
   props: {
     value: {
@@ -37,6 +43,14 @@ export default Vue.extend({
     disable: Boolean,
 
     input: Boolean,
+
+    iconPrev: String,
+    iconNext: String,
+    iconFirst: String,
+    iconLast: String,
+
+    toFn: Function,
+
     boundaryLinks: {
       type: Boolean,
       default: null
@@ -57,6 +71,11 @@ export default Vue.extend({
       type: Number,
       default: 0,
       validator: v => v >= 0
+    },
+
+    ripple: {
+      type: [Boolean, Object],
+      default: null
     }
   },
 
@@ -67,11 +86,11 @@ export default Vue.extend({
   },
 
   watch: {
-    min (value) {
+    min () {
       this.model = this.value
     },
 
-    max (value) {
+    max () {
       this.model = this.value
     }
   },
@@ -113,12 +132,31 @@ export default Vue.extend({
 
     icons () {
       const ico = [
-        this.$q.iconSet.pagination.first,
-        this.$q.iconSet.pagination.prev,
-        this.$q.iconSet.pagination.next,
-        this.$q.iconSet.pagination.last
+        this.iconFirst || this.$q.iconSet.pagination.first,
+        this.iconPrev || this.$q.iconSet.pagination.prev,
+        this.iconNext || this.$q.iconSet.pagination.next,
+        this.iconLast || this.$q.iconSet.pagination.last
       ]
-      return this.$q.lang.rtl ? ico.reverse() : ico
+      return this.$q.lang.rtl === true ? ico.reverse() : ico
+    },
+
+    attrs () {
+      if (this.disable === true) {
+        return {
+          'aria-disabled': ''
+        }
+      }
+    },
+
+    btnProps () {
+      return {
+        color: this.color,
+        flat: true,
+        size: this.size,
+        ripple: this.ripple !== null
+          ? this.ripple
+          : true
+      }
     }
   },
 
@@ -142,13 +180,21 @@ export default Vue.extend({
         : otherwise
     },
 
-    __getBtn (h, data, props) {
+    __getBtn (h, data, props, page) {
       data.props = {
-        color: this.color,
-        flat: true,
-        size: this.size,
+        ...this.btnProps,
         ...props
       }
+
+      if (page !== void 0) {
+        if (this.toFn !== void 0) {
+          data.props.to = this.toFn(page)
+        }
+        else {
+          data.on = { click: () => this.set(page) }
+        }
+      }
+
       return h(QBtn, data)
     }
   },
@@ -161,57 +207,46 @@ export default Vue.extend({
 
     if (this.__boundaryLinks) {
       contentStart.push(this.__getBtn(h, {
-        key: 'bls',
-        on: {
-          click: () => this.set(this.min)
-        }
+        key: 'bls'
       }, {
         disable: this.disable || this.value <= this.min,
         icon: this.icons[0]
-      }))
+      }, this.min))
       contentEnd.unshift(this.__getBtn(h, {
-        key: 'ble',
-        on: {
-          click: () => this.set(this.max)
-        }
+        key: 'ble'
       }, {
         disable: this.disable || this.value >= this.max,
         icon: this.icons[3]
-      }))
+      }, this.max))
     }
 
     if (this.__directionLinks) {
       contentStart.push(this.__getBtn(h, {
-        key: 'bdp',
-        on: {
-          click: () => this.setByOffset(-1)
-        }
+        key: 'bdp'
       }, {
         disable: this.disable || this.value <= this.min,
         icon: this.icons[1]
-      }))
+      }, this.value - 1))
       contentEnd.unshift(this.__getBtn(h, {
-        key: 'bdn',
-        on: {
-          click: () => this.setByOffset(1)
-        }
+        key: 'bdn'
       }, {
         disable: this.disable || this.value >= this.max,
         icon: this.icons[2]
-      }))
+      }, this.value + 1))
     }
 
     if (this.input === true) {
       contentMiddle.push(h(QInput, {
         staticClass: 'inline',
         style: {
-          width: `${this.inputPlaceholder.length / 2}em`
+          width: `${this.inputPlaceholder.length / 1.5}em`
         },
         props: {
           type: 'number',
           dense: true,
           value: this.newPage,
           disable: this.disable,
+          dark: this.isDark,
           borderless: true,
           inputClass: this.inputClass,
           inputStyle: this.inputStyle
@@ -221,11 +256,11 @@ export default Vue.extend({
           min: this.min,
           max: this.max
         },
-        on: {
-          input: value => (this.newPage = value),
-          keyup: e => (e.keyCode === 13 && this.__update()),
-          blur: () => this.__update()
-        }
+        on: cache(this, 'inp', {
+          input: value => { this.newPage = value },
+          keyup: e => { isKeyCode(e, 13) === true && this.__update() },
+          blur: this.__update
+        })
       }))
     }
     else { // is type select
@@ -269,79 +304,64 @@ export default Vue.extend({
         const active = this.min === this.value
         contentStart.push(this.__getBtn(h, {
           key: 'bns',
-          style,
-          on: {
-            click: () => this.set(this.min)
-          }
+          style
         }, {
           disable: this.disable,
           flat: !active,
           textColor: active ? this.textColor : null,
-          label: this.min,
-          ripple: false
-        }))
+          label: this.min
+        }, this.min))
       }
       if (boundaryEnd) {
         const active = this.max === this.value
         contentEnd.unshift(this.__getBtn(h, {
           key: 'bne',
-          style,
-          on: {
-            click: () => this.set(this.max)
-          }
+          style
         }, {
           disable: this.disable,
           flat: !active,
           textColor: active ? this.textColor : null,
-          label: this.max,
-          ripple: false
-        }))
+          label: this.max
+        }, this.max))
       }
       if (ellipsesStart) {
         contentStart.push(this.__getBtn(h, {
           key: 'bes',
-          style,
-          on: {
-            click: () => this.set(pgFrom - 1)
-          }
+          style
         }, {
           disable: this.disable,
-          label: '…'
-        }))
+          label: '…',
+          ripple: false
+        }, pgFrom - 1))
       }
       if (ellipsesEnd) {
         contentEnd.unshift(this.__getBtn(h, {
           key: 'bee',
-          style,
-          on: {
-            click: () => this.set(pgTo + 1)
-          }
+          style
         }, {
           disable: this.disable,
-          label: '…'
-        }))
+          label: '…',
+          ripple: false
+        }, pgTo + 1))
       }
       for (let i = pgFrom; i <= pgTo; i++) {
         const active = i === this.value
         contentMiddle.push(this.__getBtn(h, {
           key: `bpg${i}`,
-          style,
-          on: {
-            click: () => this.set(i)
-          }
+          style
         }, {
           disable: this.disable,
           flat: !active,
           textColor: active ? this.textColor : null,
-          label: i,
-          ripple: false
-        }))
+          label: i
+        }, i))
       }
     }
 
     return h('div', {
       staticClass: 'q-pagination row no-wrap items-center',
       class: { disabled: this.disable },
+      attrs: this.attrs,
       on: this.$listeners
     }, [
       contentStart,
@@ -349,8 +369,8 @@ export default Vue.extend({
       h('div', {
         staticClass: 'row justify-center',
         on: this.input === true
-          ? { input: stop }
-          : {}
+          ? cache(this, 'stop', { input: stop })
+          : null
       }, [
         contentMiddle
       ]),

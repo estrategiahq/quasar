@@ -4,7 +4,7 @@ import QSlideTransition from '../slide-transition/QSlideTransition.js'
 import { PanelChildMixin } from '../../mixins/panel.js'
 import StepHeader from './StepHeader.js'
 
-import slot from '../../utils/slot.js'
+import { slot } from '../../utils/slot.js'
 
 const StepWrapper = Vue.extend({
   name: 'QStepWrapper',
@@ -61,6 +61,21 @@ export default Vue.extend({
   computed: {
     isActive () {
       return this.stepper.value === this.name
+    }
+  },
+
+  watch: {
+    isActive (active) {
+      if (
+        active === true &&
+        this.stepper.vertical === true
+      ) {
+        this.$nextTick(() => {
+          if (this.$el !== void 0) {
+            this.$el.scrollTop = 0
+          }
+        })
+      }
     }
   },
 

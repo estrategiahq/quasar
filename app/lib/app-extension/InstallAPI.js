@@ -1,16 +1,14 @@
-const
-  fs = require('fs-extra'),
-  path = require('path'),
-  merge = require('webpack-merge'),
-  semver = require('semver')
+const fs = require('fs-extra')
+const path = require('path')
+const merge = require('webpack-merge')
+const semver = require('semver')
 
-const
-  appPaths = require('../app-paths'),
-  logger = require('../helpers/logger'),
-  warn = logger('app:extension(install)', 'red'),
-  getPackageJson = require('../helpers/get-package-json'),
-  getCallerPath = require('../helpers/get-caller-path'),
-  extensionJson = require('./extension-json')
+const appPaths = require('../app-paths')
+const logger = require('../helpers/logger')
+const warn = logger('app:extension(install)', 'red')
+const getPackageJson = require('../helpers/get-package-json')
+const getCallerPath = require('../helpers/get-caller-path')
+const extensionJson = require('./extension-json')
 
 /**
  * API for extension's /install.js script
@@ -148,9 +146,8 @@ module.exports = class InstallAPI {
     }
 
     if (typeof extPkg === 'string') {
-      const
-        dir = getCallerPath(),
-        source = path.resolve(dir, extPkg)
+      const dir = getCallerPath()
+      const source = path.resolve(dir, extPkg)
 
       if (!fs.existsSync(source)) {
         warn()
@@ -179,9 +176,8 @@ module.exports = class InstallAPI {
       return
     }
 
-    const
-      filePath = appPaths.resolve.app('package.json'),
-      pkg = merge(require(filePath), extPkg)
+    const filePath = appPaths.resolve.app('package.json')
+    const pkg = merge(require(filePath), extPkg)
 
     fs.writeFileSync(
       filePath,
@@ -209,15 +205,28 @@ module.exports = class InstallAPI {
    */
   extendJsonFile (file, newData) {
     if (newData !== void 0 && Object(newData) === newData && Object.keys(newData).length > 0) {
-      const
-        filePath = appPaths.resolve.app(file),
-        data = merge(fs.existsSync(filePath) ? require(filePath) : {}, newData)
-
-      fs.writeFileSync(
-        appPaths.resolve.app(file),
-        JSON.stringify(data, null, 2),
-        'utf-8'
-      )
+      const filePath = appPaths.resolve.app(file)
+      
+      // Try to parse the JSON with Node native tools.
+      // It will soft-fail and log a warning if the JSON isn't parseable
+      //  which usually means we are dealing with an extended JSON flavour,
+      //  for example JSON with comments or JSON5.
+      // Notable examples are TS 'tsconfig.json' or VSCode 'settings.json'
+      try {
+        const data = merge(fs.existsSync(filePath) ? require(filePath) : {}, newData)
+  
+        fs.writeFileSync(
+          appPaths.resolve.app(file),
+          JSON.stringify(data, null, 2),
+          'utf-8'
+        )
+      }
+      catch(e) {
+        warn()
+        warn(`⚠️  Extension(${this.extId}): extendJsonFile() - "${filePath}" doesn't conform to JSON format: this could happen if you are trying to update flavoured JSON files (eg. JSON with Comments or JSON5). Skipping...`)
+        warn(`⚠️  Extension(${this.extId}): extendJsonFile() - The extension tried to apply these updates to "${filePath}" file: ${JSON.stringify(newData)}`)
+        warn()
+      }
     }
   }
 
@@ -229,10 +238,9 @@ module.exports = class InstallAPI {
    * @param {object} scope (optional; rendering scope variables)
    */
   render (templatePath, scope) {
-    const
-      dir = getCallerPath(),
-      source = path.resolve(dir, templatePath),
-      rawCopy = !scope || Object.keys(scope).length === 0
+    const dir = getCallerPath()
+    const source = path.resolve(dir, templatePath)
+    const rawCopy = !scope || Object.keys(scope).length === 0
 
     if (!fs.existsSync(source)) {
       warn()

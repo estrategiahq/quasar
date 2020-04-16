@@ -1,6 +1,10 @@
 {
   "mixins": [ "mixins/fullscreen" ],
 
+  "meta": {
+    "docsUrl": "https://v1.quasar.dev/vue-components/table"
+  },
+
   "props": {
     "data": {
       "type": "Array",
@@ -10,11 +14,62 @@
     },
 
     "row-key": {
-      "type": "String",
-      "desc": "Property of each row that defines the unique key of each row; The value of property must be string or number",
+      "type": [ "String", "Function" ],
+      "desc": "Property of each row that defines the unique key of each row (the result must be a primitive, not Object, Array, etc); The value of property must be string or a function taking a row and returning the desired (nested) key in the row; If supplying a function then for best performance, reference it from your scope and do not define it inline",
       "default": "id",
-      "examples": [ "myprop" ],
+      "examples": [ "row-key=\"name\"", ":row-key=\"row => row.name\"" ],
       "category": "general"
+    },
+
+    "virtual-scroll": {
+      "type": "Boolean",
+      "desc": "Display data using QVirtualScroll (for non-grid mode only)",
+      "category": "virtual-scroll",
+      "addedIn": "v1.2.0"
+    },
+
+    "virtual-scroll-slice-size": {
+      "type": "Number",
+      "desc": "Number of rows to render in the virtual list",
+      "default": "30",
+      "examples": [
+        ":virtual-scroll-slice-size=\"60\""
+      ],
+      "category": "virtual-scroll",
+      "addedIn": "v1.2.0"
+    },
+
+    "virtual-scroll-item-size": {
+      "type": "Number",
+      "desc": "Default size in pixels of a row; This value is used for rendering the initial table; Try to use a value close to the minimum size of a row",
+      "default": "48 (24 if dense)",
+      "examples": [
+        ":virtual-scroll-item-size=\"48\""
+      ],
+      "category": "virtual-scroll",
+      "addedIn": "v1.2.0"
+    },
+
+    "virtual-scroll-sticky-size-start": {
+      "type": "Number",
+      "desc": "Size in pixels of the sticky header (if using one); A correct value will improve scroll precision",
+      "default": "0",
+      "examples": [
+        ":virtual-scroll-sticky-size-start=\"48\""
+      ],
+      "category": "virtual-scroll",
+      "addedIn": "v1.2.0"
+    },
+
+    "virtual-scroll-sticky-size-end": {
+      "type": "Number",
+      "desc": "Size in pixels of the sticky footer part (if using one); A correct value will improve scroll precision",
+      "default": "0",
+      "examples": [
+        ":virtual-scroll-sticky-size-end=\"48\""
+      ],
+      "category": "virtual-scroll",
+      "addedIn": "v1.2.0"
     },
 
     "color": {
@@ -25,7 +80,13 @@
     "grid": {
       "type": "Boolean",
       "desc": "Display data as a grid instead of the default table",
-      "category": "style"
+      "category": "behavior"
+    },
+
+    "grid-header": {
+      "type": "Boolean",
+      "desc": "Display header for grid-mode also",
+      "category": "behavior|content"
     },
 
     "dense": {
@@ -37,12 +98,124 @@
       "type": "Array",
       "desc": "The column definitions (Array of Objects)",
       "examples": [ ":columns=\"tableColumns\"" ],
-      "category": "column"
+      "category": "column",
+      "definition": {
+        "name": {
+          "type": "String",
+          "desc": "Unique id, identifies column, (used by pagination.sortBy, 'body-cell-[name]' slot, ...)",
+          "required": true,
+          "examples": [ "desc" ]
+        },
+        "label": {
+          "type": "String",
+          "desc": "Label for header",
+          "required": true,
+          "examples": [ "Dessert (100g serving)" ]
+        },
+        "field": {
+          "type": [ "String", "Function" ],
+          "desc": "Row Object property to determine value for this column or function which maps to the required property",
+          "required": true,
+          "examples": [ "name", "row => row.some.nested.prop" ]
+        },
+        "required": {
+          "type": "Boolean",
+          "desc": "If we use visible-columns, this col will always be visible",
+          "default": false
+        },
+        "align": {
+          "type": "String",
+          "desc": "Horizontal alignment of cells in this column",
+          "default": "right",
+          "examples": [ "left", "right", "center" ]
+        },
+        "sortable": {
+          "type": "Boolean",
+          "desc": "Tell QTable you want this column sortable",
+          "default": false
+        },
+        "sort": {
+          "type": "Function",
+          "desc": "Compare function if you have some custom data or want a specific way to compare two rows",
+          "examples": ["(a, b, rowA, rowB) => parseInt(a, 10) - parseInt(b, 10)"],
+          "params": {
+            "a": {
+              "type": "Any",
+              "desc": "Value of the first comparison term",
+              "examples": [ 123, "abc" ]
+            },
+            "b": {
+              "type": "Any",
+              "desc": "Value of the second comparison term",
+              "examples": [ 123, "abc" ]
+            },
+            "rowA": {
+              "type": "Object",
+              "desc": "Full Row object in which is contained the first term",
+              "examples": [ "{ name: 'Potassium', value: 'K' }" ]
+            },
+            "rowB": {
+              "type": "Object",
+              "desc": "Full Row object in which is contained the second term",
+              "examples": [ "{ name: 'Fluorine', value: 'F' }" ]
+            }
+          },
+          "returns": {
+            "type": "Number",
+            "desc": "Comparison result of term 'a' with term 'b'. Less than 0 when 'a' should come first; greater than 0 if 'b' should come first; equal to 0 if their position must not be changed with respect to each other",
+            "examples": [ "-1", "0", "1" ]
+          }
+        },
+        "format": {
+          "type": "Function",
+          "desc": "Function you can apply to format your data",
+          "examples": [ "(val, row) => `${val}%`", "val => val ? /* Unicode checkmark checked */ '\u2611' : /* Unicode checkmark unchecked */ '\u2610'" ],
+          "params": {
+            "val": {
+              "type": "Any",
+              "desc": "Value of the cell",
+              "examples": [ 123, "abc" ]
+            },
+            "row": {
+              "type": "Object",
+              "desc": "Full Row object in which the cell is contained",
+              "examples": [ "{ name: 'Potassium', value: 'K' }" ]
+            }
+          },
+          "returns": {
+            "type": "Any",
+            "desc": "The resulting formatted value",
+            "examples": [ "20%" ]
+          }
+        },
+        "style": {
+          "type": "String",
+          "desc": "Style to apply on normal cells of the column",
+          "examples": [ "width: 500px" ]
+        },
+        "classes": {
+          "type": "String",
+          "desc": "Classes to add on normal cells of the column",
+          "examples": [ "my-special-class" ]
+        },
+        "headerStyle": {
+          "type": "String",
+          "desc": "Style to apply on header cells of the column",
+          "examples": [ "width: 500px" ],
+          "addedIn": "v1.3.0"
+        },
+        "headerClasses": {
+          "type": "String",
+          "desc": "Classes to add on header cells of the column",
+          "examples": [ "my-special-class" ],
+          "addedIn": "v1.3.0"
+        }
+      }
     },
 
     "visible-columns": {
       "type": "Array",
-      "desc": "Array of Strings defining column names ('name' property of each column from 'columns' prop definitions)",
+      "desc": "Array of Strings defining column names ('name' property of each column from 'columns' prop definitions); Columns marked as 'required' are not affected by this property",
       "examples": [
         ":visible-columns=\"myCols\"",
         "[ 'desc', 'carbs', 'protein' ]"
@@ -135,7 +308,7 @@
 
     "selected-rows-label": {
       "type": "Function",
-      "desc": "Text to display when user selected at least one row",
+      "desc": "Text to display when user selected at least one row; For best performance, reference it from your scope and do not define it inline",
       "params": {
         "numberOfRows": {
           "type": "Number",
@@ -161,7 +334,7 @@
 
     "pagination-label": {
       "type": "Function",
-      "desc": "Text to override default pagination label at bottom of table (unless 'pagination' scoped slot is used)",
+      "desc": "Text to override default pagination label at bottom of table (unless 'pagination' scoped slot is used); For best performance, reference it from your scope and do not define it inline",
       "params": {
         "firstRowIndex": {
           "type": "Number",
@@ -228,22 +401,45 @@
       "category": "style"
     },
 
-    "card-style": {
+    "card-container-style": {
       "type": [ "String", "Array", "Object" ],
-      "desc": "CSS style to apply to the card",
+      "desc": "CSS style to apply to the cards container (when in grid mode)",
       "examples": [
         "background-color: #ff0000",
-        ":table-style=\"{ backgroundColor: '#ff0000' }\""
+        ":card-container-style=\"{ backgroundColor: '#ff0000' }\""
+      ],
+      "category": "style",
+      "addedIn": "v1.4.0"
+    },
+
+    "card-container-class": {
+      "type": [ "String", "Array", "Object" ],
+      "desc": "CSS classes to apply to the cards container (when in grid mode)",
+      "examples": [
+        "my-special-class",
+        "justify-center",
+        ":card-container-class=\"{ 'my-special-class': [Boolean condition] }\""
+      ],
+      "category": "style",
+      "addedIn": "v1.4.0"
+    },
+
+    "card-style": {
+      "type": [ "String", "Array", "Object" ],
+      "desc": "CSS style to apply to the card (when in grid mode)",
+      "examples": [
+        "background-color: #ff0000",
+        ":card-style=\"{ backgroundColor: '#ff0000' }\""
       ],
       "category": "style"
     },
 
     "card-class": {
       "type": [ "String", "Array", "Object" ],
-      "desc": "CSS classes to apply to the card",
+      "desc": "CSS classes to apply to the card (when in grid mode)",
       "examples": [
         "my-special-class",
-        ":table-class=\"{ 'my-special-class': [Boolean condition] }\""
+        ":card-class=\"{ 'my-special-class': [Boolean condition] }\""
       ],
       "category": "style"
     },
@@ -257,7 +453,7 @@
 
     "filter-method": {
       "type": "Function",
-      "desc": "The actual filtering mechanism",
+      "desc": "The actual filtering mechanism; For best performance, reference it from your scope and do not define it inline",
       "params": {
         "rows": {
           "type": "Array",
@@ -349,7 +545,7 @@
     "rows-per-page-options": {
       "type": "Array",
       "desc": "Options for user to pick (Numbers); Number 0 means 'Show all rows in one page'",
-      "default": "[3, 5, 7, 10, 15, 20, 25, 50, 0]",
+      "default": "[ 3, 5, 7, 10, 15, 20, 25, 50, 0 ]",
       "examples": [
         ":rows-per-page-options=\"[10, 20]\""
       ],
@@ -376,9 +572,21 @@
       "category": "selection"
     },
 
+    "expanded": {
+      "type": "Array",
+      "desc": "Keeps the array with expanded rows keys",
+      "sync": true,
+      "default": "[]",
+      "examples": [
+        ":expanded.sync=\"expanded\""
+      ],
+      "category": "expansion",
+      "addedIn": "v1.8.3"
+    },
+
     "sort-method": {
       "type": "Function",
-      "desc": "The actual sort mechanism. Function (rows, sortBy, descending) => sorted rows",
+      "desc": "The actual sort mechanism. Function (rows, sortBy, descending) => sorted rows; For best performance, reference it from your scope and do not define it inline",
       "params": {
         "rows": {
           "type": "Array",
@@ -405,6 +613,13 @@
         "(see source code)"
       ],
       "category": "sorting"
+    }
+  },
+
+  "slots": {
+    "loading": {
+      "desc": "Override default effect when table is in loading state; Suggestion: QInnerLoading",
+      "addedIn": "v1.8.0"
     }
   },
 
@@ -653,6 +868,72 @@
           "type": "Object",
           "desc": "Column definitions",
           "__exemption": [ "examples" ]
+        }
+      }
+    },
+
+    "top": {
+      "desc": "Slot to define how table top looks like",
+      "scope": {
+        "pagination": {
+          "type": "Object",
+          "desc": "Pagination object",
+          "definition": {
+            "sortBy": {
+              "type": "String",
+              "desc": "Column name (from column definition)",
+              "examples": [ "calories" ]
+            },
+            "descending": {
+              "type": "Boolean",
+              "desc": "Is sorting in descending order?"
+            },
+            "page": {
+              "type": "Number",
+              "desc": "Page number (1-based)",
+              "examples": [ 3 ]
+            },
+            "rowsPerPage": {
+              "type": "Number",
+              "desc": "How many rows per page? 0 means Infinite",
+              "examples": [ 10 ]
+            }
+          }
+        },
+        "pagesNumber": {
+          "type": "Number",
+          "desc": "Number of pages available",
+          "examples": [ 5 ]
+        },
+        "isFirstPage": {
+          "type": "Boolean",
+          "desc": "Are we on first page?"
+        },
+        "isLastPage": {
+          "type": "Boolean",
+          "desc": "Are we on last page?"
+        },
+        "prevPage": {
+          "type": "Function",
+          "desc": "Navigates to previous page, if available",
+          "params": null,
+          "returns": null
+        },
+        "nextPage": {
+          "type": "Function",
+          "desc": "Navigates to next page, if available",
+          "params": null,
+          "returns": null
+        },
+        "inFullscreen": {
+          "type": "Boolean",
+          "desc": "Is table in fullscreen mode?"
+        },
+        "toggleFullscreen": {
+          "type": "Function",
+          "desc": "Toggles fullscreen mode",
+          "params": null,
+          "returns": null
         }
       }
     },
@@ -1005,6 +1286,44 @@
   },
 
   "events": {
+    "row-click": {
+      "desc": "Emitted when user clicks/taps on a row; Is not emitted when using body/row/item scoped slots",
+      "params": {
+        "evt": {
+          "type": "Object",
+          "desc": "JS event object",
+          "required": true,
+          "__exemption": [ "examples" ]
+        },
+
+        "row": {
+          "type": "Object",
+          "desc": "The row upon which user has clicked/tapped",
+          "__exemption": [ "examples" ]
+        }
+      },
+      "addedIn": "v1.2.6"
+    },
+
+    "row-dblclick": {
+      "desc": "Emitted when user quickly double clicks/taps on a row; Is not emitted when using body/row/item scoped slots; Please check JS dblclick event support before using",
+      "params": {
+        "evt": {
+          "type": "Object",
+          "desc": "JS event object",
+          "required": true,
+          "__exemption": [ "examples" ]
+        },
+
+        "row": {
+          "type": "Object",
+          "desc": "The row upon which user has double clicked/tapped",
+          "__exemption": [ "examples" ]
+        }
+      },
+      "addedIn": "v1.5.10"
+    },
+
     "request": {
       "desc": "Emitted when a server request is triggered",
       "params": {
@@ -1176,10 +1495,57 @@
           "type": "Array",
           "desc": "The updated selected array",
           "examples": [
-            "[ { name: 'Frozen Yogurt', calories: 159, fat: 6, __index: 0 } ]"
+            "[ { name: 'Frozen Yogurt', calories: 159, fat: 6 } ]"
           ]
         }
       }
+    },
+
+    "update:expanded": {
+      "desc": "Used by Vue on 'expanded.sync' prop for updating its value",
+      "params": {
+        "newExpanded": {
+          "type": "Array",
+          "desc": "The updated expanded array",
+          "examples": [
+            "[ 'row-a', 'row-b' ]"
+          ]
+        }
+      },
+      "addedIn": "v1.8.3"
+    },
+
+    "virtual-scroll": {
+      "desc": "Emitted when the virtual scroll occurs, if using virtual scroll",
+      "params": {
+        "details": {
+          "type": "Object",
+          "desc": "Object of properties on the new scroll position",
+          "definition": {
+            "index": {
+              "type": "Number",
+              "desc": "Index of the list item that was scrolled into view (0 based)",
+              "examples": [ 30 ]
+            },
+            "from": {
+              "type": "Number",
+              "desc": "The index of the first list item that is rendered (0 based)",
+              "examples": [ 10 ]
+            },
+            "to": {
+              "type": "Number",
+              "desc": "The index of the last list item that is rendered (0 based)",
+              "examples": [ 50 ]
+            },
+            "direction": {
+              "type": "String",
+              "desc": "Direction of change",
+              "values": [ "increase", "decrease" ]
+            }
+          }
+        }
+      },
+      "addedIn": "v1.4.1"
     }
   },
 
@@ -1323,11 +1689,45 @@
           "required": true,
           "examples": [ "calories" ]
         }
+      },
+      "returns": {
+        "type": "Boolean",
+        "desc": "Is row selected or not?"
       }
     },
 
     "clearSelection": {
       "desc": "Clears user selection (emits 'update:selected' with empty array)"
+    },
+
+    "isRowExpanded": {
+      "desc": "Determine if a row is expanded or not",
+      "params": {
+        "key": {
+          "type": "Any",
+          "desc": "Row key value",
+          "required": true,
+          "examples": [ "calories" ]
+        }
+      },
+      "returns": {
+        "type": "Boolean",
+        "desc": "Is row expanded or not?"
+      },
+      "addedIn": "v1.8.3"
+    },
+
+    "setExpanded": {
+      "desc": "Sets the expanded rows keys array; Especially useful if not using an external 'expanded' state otherwise just emits 'update:expanded' with the value",
+      "params": {
+        "expanded": {
+          "type": "Array",
+          "desc": "Array containing keys of the expanded rows",
+          "required": true,
+          "examples": [ "[ 'row-a', 'row-b' ]" ]
+        }
+      },
+      "addedIn": "v1.8.3"
     },
 
     "sort": {
@@ -1344,6 +1744,23 @@
 
     "toggleFullscreen": {
       "desc": "Toggles fullscreen mode"
+    },
+
+    "resetVirtualScroll": {
+      "desc": "Resets the virtual scroll (if using it) computations; Needed for custom edge-cases"
+    },
+
+    "scrollTo": {
+      "desc": "Scroll the table to the row with the specified index in page (0 based)",
+      "params": {
+        "index": {
+          "type": [ "String", "Number" ],
+          "desc": "The index of the row in page (0 based)",
+          "required": true,
+          "examples": [ "1", 23 ]
+        }
+      },
+      "addedIn": "v1.7.2"
     }
   }
 }

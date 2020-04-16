@@ -7,8 +7,9 @@ import PreventScrollMixin from '../../mixins/prevent-scroll.js'
 
 import { childHasFocus } from '../../utils/dom.js'
 import EscapeKey from '../../utils/escape-key.js'
-import slot from '../../utils/slot.js'
-import { create, stop, stopAndPrevent } from '../../utils/event.js'
+import { slot } from '../../utils/slot.js'
+import { create, stop } from '../../utils/event.js'
+import { cache } from '../../utils/vm.js'
 
 let maximizedModals = 0
 
@@ -54,9 +55,8 @@ export default Vue.extend({
     position: {
       type: String,
       default: 'standard',
-      validator (val) {
-        return val === 'standard' || ['top', 'bottom', 'left', 'right'].includes(val)
-      }
+      validator: val => val === 'standard' ||
+        ['top', 'bottom', 'left', 'right'].includes(val)
     },
 
     transitionShow: String,
@@ -78,11 +78,8 @@ export default Vue.extend({
       }
     },
 
-    maximized (newV, oldV) {
-      if (this.showing === true) {
-        this.__updateState(false, oldV)
-        this.__updateState(true, newV)
-      }
+    maximized (state) {
+      this.showing === true && this.__updateMaximized(state)
     },
 
     useBackdrop (v) {
@@ -133,7 +130,7 @@ export default Vue.extend({
         return
       }
 
-      node = node.querySelector('[autofocus]') || node
+      node = node.querySelector('[autofocus], [data-autofocus]') || node
       node.focus()
     },
 
@@ -161,13 +158,13 @@ export default Vue.extend({
     __show (evt) {
       this.__addHistory()
 
-      this.__refocusTarget = this.noRefocus === false
+      // IE can have null document.activeElement
+      this.__refocusTarget = this.noRefocus === false && document.activeElement !== null
         ? document.activeElement
         : void 0
 
       this.$el.dispatchEvent(create('popup-show', { bubbles: true }))
-
-      this.__updateState(true, this.maximized)
+      this.__updateMaximized(this.maximized)
 
       EscapeKey.register(this, () => {
         if (this.seamless !== true) {
@@ -184,14 +181,45 @@ export default Vue.extend({
       this.__showPortal()
 
       if (this.noFocus !== true) {
-        document.activeElement.blur()
-
-        this.__nextTick(() => {
-          this.focus()
-        })
+        // IE can have null document.activeElement
+        document.activeElement !== null && document.activeElement.blur()
+        this.__nextTick(this.focus)
       }
 
       this.__setTimeout(() => {
+        if (this.$q.platform.is.ios === true && document.activeElement) {
+          const
+            { top, bottom } = document.activeElement.getBoundingClientRect(),
+            { innerHeight } = window,
+            height = window.visualViewport !== void 0
+              ? window.visualViewport.height
+              : innerHeight
+
+          if (top > 0 && bottom > height / 2) {
+            const scrollTop = Math.min(
+              document.scrollingElement.scrollHeight - height,
+              bottom >= innerHeight
+                ? Infinity
+                : Math.ceil(document.scrollingElement.scrollTop + bottom - height / 2)
+            )
+
+            const fn = () => {
+              requestAnimationFrame(() => {
+                document.scrollingElement.scrollTop += Math.ceil((scrollTop - document.scrollingElement.scrollTop) / 8)
+                if (document.scrollingElement.scrollTop !== scrollTop) {
+                  fn()
+                }
+              })
+            }
+
+            fn()
+          }
+          document.activeElement.scrollIntoView()
+        }
+
+        // required in order to avoid the "double-tap needed" issue
+        this.$q.platform.is.ios === true && this.__portal.$el.click()
+
         this.$emit('show', evt)
       }, 300)
     },
@@ -218,23 +246,31 @@ export default Vue.extend({
 
       if (hiding === true || this.showing === true) {
         EscapeKey.pop(this)
-        this.__updateState(false, this.maximized)
-        if (this.useBackdrop === true) {
+        this.__updateMaximized(false)
+
+        if (this.seamless !== true) {
           this.__preventScroll(false)
           this.__preventFocusout(false)
         }
       }
     },
 
-    __updateState (opening, maximized) {
-      if (maximized === true) {
-        if (opening === true) {
+    __updateMaximized (active) {
+      if (active === true) {
+        if (this.isMaximized !== true) {
           maximizedModals < 1 && document.body.classList.add('q-body--dialog')
+          maximizedModals++
+
+          this.isMaximized = true
         }
-        else if (maximizedModals < 2) {
+      }
+      else if (this.isMaximized === true) {
+        if (maximizedModals < 2) {
           document.body.classList.remove('q-body--dialog')
         }
-        maximizedModals += opening === true ? 1 : -1
+
+        maximizedModals--
+        this.isMaximized = false
       }
     },
 
@@ -260,21 +296,23 @@ export default Vue.extend({
     },
 
     __onFocusChange (e) {
-      const node = this.__getInnerNode()
-
+      // the focus is not in a vue child component
       if (
-        node !== void 0 &&
-        // the focus is not in a vue child component
+        this.showing === true &&
+        this.__portal !== void 0 &&
         childHasFocus(this.__portal.$el, e.target) !== true
       ) {
-        node.focus()
+        this.focus()
       }
     },
 
-    __render (h) {
+    __renderPortal (h) {
       const on = {
         ...this.$listeners,
-        input: stop
+        // stop propagating these events from children
+        input: stop,
+        'popup-show': stop,
+        'popup-hide': stop
       }
 
       if (this.autoClose === true) {
@@ -292,10 +330,9 @@ export default Vue.extend({
         }, this.useBackdrop === true ? [
           h('div', {
             staticClass: 'q-dialog__backdrop fixed-full',
-            on: {
-              touchmove: stopAndPrevent, // prevent iOS page scroll
+            on: cache(this, 'bkdrop', {
               click: this.__onBackdropClick
-            }
+            })
           })
         ] : null),
 

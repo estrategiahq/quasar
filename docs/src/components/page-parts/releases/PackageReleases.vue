@@ -1,10 +1,12 @@
 <template lang="pug">
-q-splitter.release__splitter(:value="20")
+q-splitter.release__splitter(:value="20" :limits="[14, 90]")
   template(#before)
     q-scroll-area
-      q-input(v-model="search" dense square standout="bg-primary text-white" placeholder="Highlight...")
+      q-input(v-model="search" dense square standout="bg-primary text-white" placeholder="Highlight..." input-class="text-center" clearable)
       q-tabs.text-primary(vertical v-model="selectedVersion")
-        q-tab(v-for="releaseInfo in filteredReleases" :key="releaseInfo.key" :label="releaseInfo.version" :name="releaseInfo.key")
+        q-tab(v-for="releaseInfo in filteredReleases" :key="releaseInfo.key" :name="releaseInfo.key")
+          .q-tab__label {{ releaseInfo.version }}
+          small.text-grey-7 {{ releaseInfo.formattedCreatedAt }}
   template(#after)
     q-tab-panels.releases-container(v-model="selectedVersion" animated transition-prev="slide-down" transition-next="slide-up")
       q-tab-panel.q-pa-none(v-for="releaseInfo in filteredReleases" :key="releaseInfo.key" :name="releaseInfo.key")
@@ -14,6 +16,7 @@ q-splitter.release__splitter(:value="20")
 
 <script>
 import sanitize from './sanitize'
+import parseMdTable from './md-table-parser'
 
 export default {
   data () {
@@ -51,7 +54,7 @@ export default {
         content = content.replace(new RegExp(`(${this.search})`, 'ig'), `<span class="bg-accent text-white">$1</span>`)
       }
 
-      return content
+      content = content
         .replace(/### ([\S ]+)/g, '<div class="text-h6">$1</div>')
         .replace(/## ([\S ]+)/g, '<div class="text-h5">$1</div>')
         .replace(/# ([\S ]+)g/, '<div class="text-h4">$1</div>')
@@ -64,6 +67,10 @@ export default {
         .replace(/#([\d]+)/g, '<a class="doc-link" href="https://github.com/quasarframework/quasar/issues/$1" target="_blank">#$1</a>')
         .replace(/^&gt; ([\S ]+)\n/g, '<div class="release__blockquote">$1</div>')
         .replace(/\[([\S ]+)\]\((\S+)\)/g, '<a class="doc-link" href="$2" target="_blank">$1</a>')
+
+      return content.indexOf('| -') > -1
+        ? parseMdTable(content)
+        : content
     }
   },
 
@@ -83,6 +90,8 @@ export default {
   height: 600px
 .release__body
   white-space: pre-line
+  .q-markup-table
+    white-space: normal
 .release__blockquote
   background: rgba($primary, .05)
   border: 1px solid $primary

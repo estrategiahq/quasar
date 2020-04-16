@@ -31,7 +31,6 @@ const gettingStarted = [
   },
   {
     name: 'Release notes',
-    badge: 'updated',
     path: 'release-notes'
   },
   {
@@ -39,18 +38,35 @@ const gettingStarted = [
     path: 'roadmap'
   },
   {
-    name: 'Contribution Guide',
-    badge: 'new',
-    path: 'contribution-guide'
-  },
-  {
     name: 'Upgrade guide',
     path: 'upgrade-guide'
   },
   {
     name: 'VS Code Configuration',
-    badge: 'new',
     path: 'vs-code-configuration'
+  }
+]
+
+const contributionGuide = [
+  {
+    name: 'Contribution Guide',
+    path: 'contribution-guide'
+  },
+  {
+    name: 'Running Projects',
+    path: 'running-projects'
+  },
+  {
+    name: 'Start a New Project',
+    path: 'new-project'
+  },
+  {
+    name: 'Project Maintainer Role',
+    path: 'project-maintainer'
+  },
+  {
+    name: 'Commit Conventions',
+    path: 'commit-conventions'
   }
 ]
 
@@ -146,6 +162,15 @@ const cli = [
     path: 'cli-documentation',
     children: [
       {
+        name: 'Supporting IE',
+        path: 'supporting-ie'
+      },
+      {
+        name: 'Supporting TypeScript',
+        badge: 'new',
+        path: 'supporting-ts'
+      },
+      {
         name: 'Directory Structure',
         path: 'directory-structure'
       },
@@ -159,7 +184,6 @@ const cli = [
       },
       {
         name: 'CSS Preprocessors',
-        badge: 'new',
         path: 'css-preprocessors'
       },
       {
@@ -201,10 +225,6 @@ const cli = [
       {
         name: 'Linter',
         path: 'linter'
-      },
-      {
-        name: 'Supporting IE',
-        path: 'supporting-ie'
       }
     ]
   },
@@ -307,6 +327,10 @@ const cli = [
     ]
   },
   {
+    name: 'Developing Mobile Apps',
+    path: 'developing-mobile-apps'
+  },
+  {
     name: 'Developing Cordova Apps',
     path: 'developing-cordova-apps',
     children: [
@@ -349,6 +373,48 @@ const cli = [
     ]
   },
   {
+    name: 'Developing Capacitor Apps',
+    path: 'developing-capacitor-apps',
+    children: [
+      {
+        name: 'Introduction',
+        path: 'introduction'
+      },
+      {
+        name: 'Preparation',
+        path: 'preparation'
+      },
+      {
+        name: 'Configuring Capacitor',
+        path: 'configuring-capacitor'
+      },
+      {
+        name: 'App Icons for Capacitor',
+        path: 'app-icons-capacitor'
+      },
+      {
+        name: 'Capacitor API',
+        path: 'capacitor-api'
+      },
+      {
+        name: 'Build Commands',
+        path: 'build-commands'
+      },
+      {
+        name: 'Troubleshooting and Tips',
+        path: 'troubleshooting-and-tips'
+      },
+      {
+        name: 'Managing Google Analytics',
+        path: 'managing-google-analytics'
+      },
+      {
+        name: 'Publishing to Store',
+        path: 'publishing-to-store'
+      }
+    ]
+  },
+  {
     name: 'Developing Electron Apps',
     path: 'developing-electron-apps',
     children: [
@@ -367,6 +433,14 @@ const cli = [
       {
         name: 'App Icons for Electron',
         path: 'app-icons-electron'
+      },
+      {
+        name: 'Node Integration',
+        path: 'node-integration'
+      },
+      {
+        name: 'Preload Script',
+        path: 'electron-preload-script'
       },
       {
         name: 'Electron Packages',
@@ -395,6 +469,52 @@ const cli = [
     ]
   },
   {
+    name: 'Developing Browser Extensions',
+    path: 'developing-browser-extensions',
+    children: [
+      {
+        name: 'Introduction',
+        path: 'introduction'
+      },
+      {
+        name: 'Preparation',
+        path: 'preparation'
+      },
+      {
+        name: 'Configuring BEX',
+        path: 'configuring-bex'
+      },
+      {
+        name: 'App Icons for BEX',
+        path: 'app-icons-browser-extension'
+      },
+      {
+        name: 'Build Commands',
+        path: 'build-commands'
+      },
+      {
+        name: 'Types of BEX',
+        path: 'types-of-bex'
+      },
+      {
+        name: 'BEX Communication / Events',
+        path: 'bex-communication'
+      },
+      {
+        name: 'Background Hooks',
+        path: 'background-hooks'
+      },
+      {
+        name: 'Content Hooks',
+        path: 'content-hooks'
+      },
+      {
+        name: 'DOM Hooks',
+        path: 'dom-hooks'
+      }
+    ]
+  },
+  {
     name: 'Ajax Requests',
     path: 'ajax-requests'
   },
@@ -415,8 +535,11 @@ const style = [
   },
   {
     name: 'Theme Builder',
-    badge: 'new',
     path: 'theme-builder'
+  },
+  {
+    name: 'Dark Mode',
+    path: 'dark-mode'
   },
   {
     name: 'Spacing',
@@ -431,6 +554,10 @@ const style = [
     path: 'breakpoints'
   },
   {
+    name: 'Body classes',
+    path: 'body-classes'
+  },
+  {
     name: 'Visibility',
     path: 'visibility'
   },
@@ -440,7 +567,6 @@ const style = [
   },
   {
     name: 'Sass/SCSS Variables',
-    badge: 'new',
     path: 'sass-scss-variables'
   },
   {
@@ -476,8 +602,12 @@ const layout = [
         path: 'gutter'
       },
       {
-        name: 'Flex Playground',
+        name: 'Flexbox patterns',
         badge: 'new',
+        path: 'flexbox-patterns'
+      },
+      {
+        name: 'Flex Playground',
         path: 'flex-playground'
       }
     ]
@@ -504,13 +634,11 @@ const layout = [
   },
   {
     name: 'Layout Builder',
-    badge: 'new',
     external: true,
     path: '/layout-builder'
   },
   {
     name: 'Layout Gallery',
-    badge: 'new',
     path: 'gallery'
   },
   {
@@ -520,10 +648,6 @@ const layout = [
   {
     name: 'Page Scroller',
     path: 'page-scroller'
-  },
-  {
-    name: 'Floating Action Button',
-    path: 'floating-action-button'
   }
 ]
 
@@ -537,8 +661,16 @@ const directives = [
     path: 'go-back'
   },
   {
+    name: 'Intersection',
+    path: 'intersection'
+  },
+  {
     name: 'Material Ripples',
     path: 'material-ripple'
+  },
+  {
+    name: 'Mutation',
+    path: 'mutation'
   },
   {
     name: 'Scroll',
@@ -588,7 +720,12 @@ const plugins = [
     path: 'cookies'
   },
   {
+    name: 'Dark',
+    path: 'dark'
+  },
+  {
     name: 'Dialog',
+    badge: 'update',
     path: 'dialog'
   },
   {
@@ -609,6 +746,7 @@ const plugins = [
   },
   {
     name: 'Notify',
+    badge: 'update',
     path: 'notify'
   }
 ]
@@ -693,7 +831,13 @@ const components = [
     path: 'expansion-item'
   },
   {
+    name: 'Floating Action Button',
+    badge: 'update',
+    path: 'floating-action-button'
+  },
+  {
     name: 'Form Components',
+    opened: true,
     listPath: 'form-components',
     children: [
       {
@@ -703,6 +847,11 @@ const components = [
       {
         name: 'Select',
         path: 'select'
+      },
+      {
+        name: 'File picker',
+        badge: 'new',
+        path: 'file-picker'
       },
       {
         name: 'Form',
@@ -767,6 +916,10 @@ const components = [
     path: 'inner-loading'
   },
   {
+    name: 'Intersection',
+    path: 'intersection'
+  },
+  {
     name: 'Knob',
     path: 'knob'
   },
@@ -829,12 +982,21 @@ const components = [
     path: 'rating'
   },
   {
+    name: 'Responsive',
+    path: 'responsive'
+  },
+  {
     name: 'Scroll Area',
+    badge: 'update',
     path: 'scroll-area'
   },
   {
     name: 'Separator',
     path: 'separator'
+  },
+  {
+    name: 'Skeleton',
+    path: 'skeleton'
   },
   {
     name: 'Slide Item',
@@ -898,7 +1060,6 @@ const components = [
   },
   {
     name: 'Virtual Scroll',
-    badge: 'new',
     path: 'virtual-scroll'
   }
 ]
@@ -962,7 +1123,6 @@ const appExtensions = [
       },
       {
         name: 'Starter kit equivalent',
-        badge: 'new',
         path: 'starter-kit-equivalent'
       },
       {
@@ -1002,7 +1162,7 @@ const utils = [
 
 module.exports = [
   {
-    name: 'Introduction to Quasar',
+    name: 'Why Quasar?',
     icon: 'room',
     path: 'introduction-to-quasar'
   },
@@ -1017,20 +1177,26 @@ module.exports = [
     path: 'why-donate'
   },
   {
+    name: 'Video Tutorials',
+    icon: 'ondemand_video',
+    path: 'video-tutorials'
+  },
+  {
     name: 'Meet the Team',
     icon: 'people',
     path: 'meet-the-team'
-  },
-  {
-    name: 'Newsletter',
-    icon: 'email',
-    path: 'newsletter'
   },
   {
     name: 'Getting Started',
     icon: 'flight_takeoff',
     path: 'start',
     children: gettingStarted
+  },
+  {
+    name: 'Contribution Guide',
+    icon: 'code',
+    path: 'contribution-guide',
+    children: contributionGuide
   },
   {
     name: 'Quasar Options & Helpers',

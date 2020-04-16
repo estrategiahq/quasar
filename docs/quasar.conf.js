@@ -6,6 +6,7 @@ module.exports = function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     boot: [
+      { path: 'gdpr', server: false },
       'components'
     ],
 
@@ -15,8 +16,7 @@ module.exports = function (ctx) {
 
     extras: [
       'roboto-font',
-      'material-icons',
-      'fontawesome-v5'
+      'material-icons'
     ],
 
     supportIE: true,
@@ -25,12 +25,21 @@ module.exports = function (ctx) {
     build: {
       scopeHoisting: true,
       vueRouterMode: 'history',
-      // showProgress: false,
+      showProgress: ctx.dev,
+      // preloadChunks: false,
       // vueCompiler: true,
       // gzip: true,
       // analyze: true,
       // extractCSS: false,
-      chainWebpack (chain, { isClient }) {
+      distDir: 'dist/quasar.dev',
+
+      chainWebpack (chain) {
+        chain.module.rule('eslint')
+          .pre()
+          .exclude.add(/node_modules|\.md\.js$/).end()
+          .test(/\.(js|vue)$/)
+          .use('eslint-loader').loader('eslint-loader')
+
         chain.resolve.alias
           .merge({
             examples: path.resolve(__dirname, 'src/examples'),
@@ -61,14 +70,6 @@ module.exports = function (ctx) {
 
         rule.use('md-loader')
           .loader(require.resolve('./build/md-loader'))
-
-        if (isClient) {
-          chain.module.rule('eslint')
-            .enforce('pre')
-            .test(/\.(js|vue)$/)
-            .exclude.add(/node_modules|\.md\.js/).end()
-            .use('eslint-loader').loader('eslint-loader')
-        }
       }
     },
 
@@ -80,6 +81,7 @@ module.exports = function (ctx) {
 
     framework: {
       all: true,
+      iconSet: 'svg-mdi-v4',
 
       config: {
         loadingBar: {
@@ -88,10 +90,10 @@ module.exports = function (ctx) {
       }
     },
 
-    animations: ['fadeIn', 'fadeOut'],
+    animations: [ 'fadeIn', 'fadeOut' ],
 
     ssr: {
-      pwa: false
+      pwa: true
     },
 
     pwa: {
@@ -102,7 +104,7 @@ module.exports = function (ctx) {
       },
       manifest: {
         name: 'Quasar Documentation',
-        short_name: 'Quasar-Docs',
+        short_name: 'Quasar Docs',
         description: 'Quasar Framework Documentation',
         display: 'standalone',
         orientation: 'portrait',
@@ -110,29 +112,29 @@ module.exports = function (ctx) {
         theme_color: '#027be3',
         icons: [
           {
-            'src': 'https://cdn.quasar.dev/app-icons/icon-128x128.png',
-            'sizes': '128x128',
-            'type': 'image/png'
+            src: 'https://cdn.quasar.dev/app-icons/icon-128x128.png',
+            sizes: '128x128',
+            type: 'image/png'
           },
           {
-            'src': 'https://cdn.quasar.dev/app-icons/icon-192x192.png',
-            'sizes': '192x192',
-            'type': 'image/png'
+            src: 'https://cdn.quasar.dev/app-icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
           },
           {
-            'src': 'https://cdn.quasar.dev/app-icons/icon-256x256.png',
-            'sizes': '256x256',
-            'type': 'image/png'
+            src: 'https://cdn.quasar.dev/app-icons/icon-256x256.png',
+            sizes: '256x256',
+            type: 'image/png'
           },
           {
-            'src': 'https://cdn.quasar.dev/app-icons/icon-384x384.png',
-            'sizes': '384x384',
-            'type': 'image/png'
+            src: 'https://cdn.quasar.dev/app-icons/icon-384x384.png',
+            sizes: '384x384',
+            type: 'image/png'
           },
           {
-            'src': 'https://cdn.quasar.dev/app-icons/icon-512x512.png',
-            'sizes': '512x512',
-            'type': 'image/png'
+            src: 'https://cdn.quasar.dev/app-icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
           }
         ]
       },

@@ -2,10 +2,9 @@
 
 const parseArgs = require('minimist')
 
-const
-  logger = require('../lib/helpers/logger'),
-  log = logger('app:mode'),
-  warn = logger('app:mode', 'red')
+const logger = require('../lib/helpers/logger')
+const log = logger('app:mode')
+const warn = logger('app:mode', 'red')
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -18,10 +17,10 @@ const argv = parseArgs(process.argv.slice(2), {
 function showHelp() {
   console.log(`
   Description
-    Add/Remove support for PWA / Cordova / Electron modes.
+    Add/Remove support for PWA / Cordova / Capacitor / Electron modes.
 
   Usage
-    $ quasar mode [add|remove] [pwa|ssr|cordova|electron] [--yes]
+    $ quasar mode [add|remove] [pwa|ssr|cordova|capacitor|electron] [--yes]
 
     # determine what modes are currently installed:
     $ quasar mode
@@ -46,9 +45,8 @@ if (argv._.length !== 0 && argv._.length !== 2) {
   process.exit(1)
 }
 
-const
-  getMode = require('../lib/mode'),
-  { green, grey } = require('chalk')
+const getMode = require('../lib/mode')
+const { green, grey } = require('chalk')
 
 async function run () {
   let [ action, mode ] = argv._
@@ -60,7 +58,7 @@ async function run () {
     process.exit(1)
   }
 
-  if (![undefined, 'pwa', 'cordova', 'electron', 'ssr'].includes(mode)) {
+  if (![undefined, 'pwa', 'cordova', 'capacitor', 'electron', 'ssr', 'bex'].includes(mode)) {
     warn(`⚠️  Unknown mode "${ mode }" to ${action}`)
     warn()
     process.exit(1)
@@ -94,7 +92,7 @@ function displayModes () {
   log(`Detecting installed modes...`)
 
   const info = []
-  ;['pwa', 'ssr', 'cordova', 'electron'].forEach(mode => {
+  ;['pwa', 'ssr', 'cordova', 'capacitor', 'electron', 'bex'].forEach(mode => {
     info.push([
       `Mode ${mode.toUpperCase()}`,
       getMode(mode).isInstalled ? green('yes') : grey('no')

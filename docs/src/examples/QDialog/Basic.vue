@@ -10,7 +10,7 @@
           <div class="text-h6">Alert</div>
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section class="q-pt-none">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis perferendis totam, ea at omnis vel numquam exercitationem aut, natus minima, porro labore.
         </q-card-section>
 
@@ -35,12 +35,12 @@
     </q-dialog>
 
     <q-dialog v-model="prompt" persistent>
-      <q-card style="min-width: 400px">
+      <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Your address</div>
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section class="q-pt-none">
           <q-input dense v-model="address" autofocus @keyup.enter="prompt = false" />
         </q-card-section>
 

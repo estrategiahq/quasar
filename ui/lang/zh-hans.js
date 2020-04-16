@@ -70,12 +70,12 @@ export default {
     hr: '插入水平线',
     undo: '撤消',
     redo: '重做',
-    header1: '标题一',
-    header2: '标题二',
-    header3: '标题三',
-    header4: '标题四',
-    header5: '标题五',
-    header6: '标题六',
+    heading1: '标题一',
+    heading2: '标题二',
+    heading3: '标题三',
+    heading4: '标题四',
+    heading5: '标题五',
+    heading6: '标题六',
     paragraph: '段落',
     code: '代码',
     size1: '非常小',
@@ -85,7 +85,8 @@ export default {
     size5: '大',
     size6: '非常大',
     size7: '超级大',
-    defaultFont: '默认字体'
+    defaultFont: '默认字体',
+    viewSource: '查看资料'
   },
   tree: {
     noNodes: '没有可用节点',

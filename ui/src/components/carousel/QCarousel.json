@@ -1,15 +1,18 @@
 {
   "mixins": [ "mixins/panel-parent", "mixins/fullscreen" ],
 
-  "props": {
-    "transition-prev": {
-      "default": "fade",
-      "category": "behavior"
-    },
+  "meta": {
+    "docsUrl": "https://v1.quasar.dev/vue-components/carousel"
+  },
 
-    "transition-next": {
-      "default": "fade",
-      "category": "behavior"
+  "behavior": {
+    "$listeners": true
+  },
+
+  "props": {
+    "dark": {
+      "extends": "dark",
+      "addedIn": "v1.3.0"
     },
 
     "height": {
@@ -24,7 +27,22 @@
     },
 
     "control-color": {
-      "extends": "color"
+      "extends": "color",
+      "desc": "Color name for QCarousel button controls (arrows, navigation) from the Quasar Color Palette"
+    },
+
+    "control-text-color": {
+      "extends": "color",
+      "desc": "Color name for text color of QCarousel button controls (arrows, navigation) from the Quasar Color Palette",
+      "addedIn": "v1.9.0"
+    },
+
+    "control-type": {
+      "type": "String",
+      "desc": "Type of button to use for controls (arrows, navigation)",
+      "values": [ "regular", "flat", "outline", "push", "unelevated" ],
+      "category": "style",
+      "addedIn": "v1.9.0"
     },
 
     "autoplay": {
@@ -57,6 +75,16 @@
       "type": "Boolean",
       "desc": "Show navigation dots",
       "category": "content"
+    },
+
+    "navigation-position": {
+      "type": "String",
+      "desc": "Side to stick navigation to",
+      "default": "bottom/right",
+      "values": [ "top", "right", "bottom", "left" ],
+      "examples": [ "left" ],
+      "category": "content",
+      "addedIn": "v1.9.0"
     },
 
     "navigation-icon": {

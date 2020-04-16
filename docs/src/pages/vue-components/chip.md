@@ -23,6 +23,10 @@ Also check out [QBadge](/vue-components/badge).
 
 <doc-example title="Dense" file="QChip/Dense" />
 
+Custom sizes (below) have been introduced in v1.2.2+:
+
+<doc-example title="Custom size" file="QChip/Sizes" />
+
 <doc-example title="Square" file="QChip/Square" />
 
 <doc-example title="Outline" file="QChip/Outline" />
@@ -32,6 +36,8 @@ Also check out [QBadge](/vue-components/badge).
 <doc-example title="Selected" file="QChip/Selected" />
 
 <doc-example title="Removable" file="QChip/Removable" />
+
+<doc-example title="Long label truncation" file="QChip/LongLabel" />
 
 ## QChip API
 <doc-api file="QChip" />

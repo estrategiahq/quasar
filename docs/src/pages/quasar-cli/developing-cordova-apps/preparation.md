@@ -1,8 +1,8 @@
 ---
-title: Mobile App Preparation
+title: Cordova App Preparation
 desc: What you need to do before developing a Quasar hybrid mobile app with Cordova.
 ---
-Before we dive in to the actual development, we need to do some preparation work. Here we will go over Android as the target platform.
+Before we dive in to the actual development, we need to do some preparation work.
 
 ## 1. Installation
 First step is to make sure you got the Cordova CLI installed and the necessary SDKs.
@@ -11,11 +11,21 @@ First step is to make sure you got the Cordova CLI installed and the necessary S
 $ npm install -g cordova
 ```
 
+::: warning
+Depending on your version of Android Studio, you might need to re-enable the "Android SDK Tools". You can do this by going
+to "Tools > SDK Manager > SDK Tools" then un-ticking "Hide Obsolete Packages" and tick "Android SDK Tools (Obsolete)".
+**The instructions below assume this has been done.**
+:::
+
+### Android setup
+
 * After this step you will need to install the Android platform SDK on your machine. You can [download the Android Studio here](https://developer.android.com/studio/index.html) and follow these [installation steps](https://developer.android.com/studio/install.html) afterwards.
+
+* Make sure that after you install the Android SDK you then accept its licenses. Open the terminal and go to the folder where the SDK was installed, in tools/bin and call `sdkmanager --licenses`.
 
 * Add Android installation to your path:
 
-### Unix (macOS, linux)
+#### Unix (macOS, linux)
 
 ```bash
 export ANDROID_HOME="$HOME/Android/Sdk"
@@ -24,12 +34,24 @@ PATH=$PATH:$ANDROID_HOME/tools; PATH=$PATH:$ANDROID_HOME/platform-tools
 
 > Please note that sometimes the `/Android/Sdk` folder is added inside `/Library/` inside your user folder. Check your user folder and if the `/Android/` folder is only inside `/Library/` do: `export ANDROID_HOME="$HOME/Library/Android/Sdk"` instead.
 
-### Windows
+#### Windows
 
+After installing Android Studio, you need to install two more pieces of software:
+* JDK from Oracle. It can be found [here](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* Gradle. It used to usable from Android Studio but now you have to install it separately. There is a very specific version that cordova requires. You can download it [here](https://downloads.gradle-dn.com/distributions/gradle-4.10.3-all.zip)
+
+Then you will have to set environment variables. You will need to set the following variables. Cordova has a good guide for it already. It can be found [here](https://cordova.apache.org/docs/en/latest/guide/platforms/android/#setting-environment-variables). You need to:
+* add ANDROID_HOME. It can safely be set to: "%USERPROFILE%\AppData\Local\Android\Sdk"
+* add two ANDROID_HOME directories to your path: %ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools
+* add Gradle to your path. Note that gradle does not have an installer. You just put the binary files where you want them, then add the bin directory to your path.
+
+If you have an init script for your command prompt or powershell, you can try this:
 ```bash
 setx ANDROID_HOME "%USERPROFILE%\AppData\Local\Android\Sdk"
-setx path "%path%;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools"
+setx path "%path%;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools;<gradle_path>\bin;"
 ```
+
+After the tools are installed, setup Android Studio with the correct SDK and create a virtual machine.
 
 * Start Android studio by changing into the folder you installed it in and run `./studio.sh`. Next step is to install the individual SDKs:
 
@@ -37,9 +59,13 @@ setx path "%path%;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools"
 
   ![SDK manager](https://cdn.quasar.dev/img/Android-Studio-SDK-Menu.png "SDK manager")
 
-* Select the desired SDKs. As per August 2018 Cordova supports 5.0 and up and click on "Apply" to install the SDKs.
+* Select the desired SDKs. As per December 2019 Cordova requires android-28 (Android 9.0 - Pie) so be sure to include it. Click on "Apply" to install the SDKs.
 
   ![SDK selection](https://cdn.quasar.dev/img/Android-Studio-SDK-selection.png "SDK selection")
+
+### iOS setup
+
+You will need a macOS with [Xcode](https://developer.apple.com/xcode/) installed. After you've installed it, open Xcode in order to get the license prompt. Accept the license, then you can close it.
 
 ## 2. Add Cordova Quasar Mode
 In order to develop/build a Mobile app, we need to add the Cordova mode to our Quasar project. What this does is that it uses Cordova CLI to generate a Cordova project in `/src-cordova` folder. `/src-cordova/www` folder will be overwritten each time you build.
@@ -55,7 +81,7 @@ To switch to the cordova project, type:
 $ cd src-cordova
 ```
 
-To add a target platform, type:
+Target platforms get installed on demand by Quasar CLI. However, if you want to add a platform manually, type:
 
 ```
 $ cordova platform add [android|ios]
@@ -108,7 +134,7 @@ $ cordova plugin add cordova-plugin-wkwebview-engine
 2. For caveats and more info, visit: [https://github.com/apache/cordova-plugin-wkwebview-engine](https://github.com/apache/cordova-plugin-wkwebview-engine)
 
 ## 4. Start Developing
-If you want to jump right in and start developing, you can skip step #2 and #3 commands and issue:
+If you want to jump right in and start developing, you can skip step #2 and #3 commands and issue one of the commands below. If you have a mobile/tablet device connected to your machine, you can also run the dev app on it instead of in an emulator.
 
 ```bash
 $ quasar dev -m cordova -T [android|ios]
@@ -119,3 +145,19 @@ $ quasar dev -m ios -- some params --and options --here
 ```
 
 This will add Cordova mode and project automatically, if it is missing.
+
+However, if you wish to open the IDE (Android Studio / Xcode) and from there to manually select the emulator (or multiple ones simultaneously!) to run the dev app on it/them:
+
+```bash
+$ quasar dev -m [ios|android] --ide
+```
+
+::: warning
+In Android Studio, you will be greeted with a message recommending to upgrade the Gradle version. **DO NOT UPGRADE GRADLE** as it will break the Cordova project. Same goes for any other requested upgrades.
+
+<img src="https://cdn.quasar.dev/img/gradle-upgrade-notice.png" alt="Gradle upgrade" class="q-my-md fit rounded-borders" style="max-width: 350px">
+
+If you encounter any IDE errors then click on File > Invalidate caches and restart.
+
+<img src="https://cdn.quasar.dev/img/gradle-invalidate-cache.png" alt="Gradle upgrade" class="q-mt-md fit rounded-borders" style="max-width: 350px">
+:::

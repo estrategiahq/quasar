@@ -67,12 +67,12 @@ export default {
     hr: 'Wstaw poziomą linię',
     undo: 'Cofnij',
     redo: 'Przywróć',
-    header1: 'Nagłówek 1',
-    header2: 'Nagłówek 2',
-    header3: 'Nagłówek 3',
-    header4: 'Nagłówek 4',
-    header5: 'Nagłówek 5',
-    header6: 'Nagłówek 6',
+    heading1: 'Nagłówek 1',
+    heading2: 'Nagłówek 2',
+    heading3: 'Nagłówek 3',
+    heading4: 'Nagłówek 4',
+    heading5: 'Nagłówek 5',
+    heading6: 'Nagłówek 6',
     paragraph: 'Paragraf',
     code: 'Kod',
     size1: 'Bardzo mała',
@@ -82,7 +82,8 @@ export default {
     size5: 'Duża',
     size6: 'Bardzo duża',
     size7: 'Maksymalna',
-    defaultFont: 'Domyślna czcionka'
+    defaultFont: 'Domyślna czcionka',
+    viewSource: 'Pokaż źródło'
   },
   tree: {
     noNodes: 'Brak dostępnych gałęzi',

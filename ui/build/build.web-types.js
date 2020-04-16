@@ -36,8 +36,35 @@ module.exports.generate = function (data) {
       contributions: {
         html: {
           'types-syntax': 'typescript',
-          tags: data.components.map(({ api: { events, props, scopedSlots, slots }, name }) => {
-            let result = {
+          tags: data.components.map(({ api: { events, props, scopedSlots, slots, meta }, name }) => {
+            let slotTypes = []
+            if (slots) {
+              Object.entries(slots).forEach(([name, slotApi]) => {
+                slotTypes.push({
+                  name,
+                  description: getDescription(slotApi),
+                  'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
+                })
+              })
+            }
+
+            if (scopedSlots) {
+              Object.entries(scopedSlots).forEach(([name, slotApi]) => {
+                slotTypes.push({
+                  name,
+                  'vue-properties': slotApi.scope && Object.entries(slotApi.scope).map(([name, api]) => ({
+                    name,
+                    type: resolveType(api),
+                    description: getDescription(api),
+                    'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
+                  })),
+                  description: getDescription(slotApi),
+                  'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
+                })
+              })
+            }
+
+            const result = {
               name,
               source: {
                 module: 'quasar',
@@ -51,7 +78,7 @@ module.exports.generate = function (data) {
                     type: resolveType(propApi)
                   },
                   description: getDescription(propApi),
-                  'doc-url': 'https://quasar.dev'
+                  'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
                 }
                 if (propApi.required) {
                   result.required = true
@@ -71,29 +98,14 @@ module.exports.generate = function (data) {
                   name: paramName,
                   type: resolveType(paramApi),
                   description: getDescription(paramApi),
-                  'doc-url': 'https://quasar.dev'
+                  'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
                 })),
                 description: getDescription(eventApi),
-                'doc-url': 'https://quasar.dev'
+                'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
               })),
-              slots: slots && Object.entries(slots).map(([name, slotApi]) => ({
-                name,
-                description: getDescription(slotApi),
-                'doc-url': 'https://quasar.dev'
-              })),
-              'vue-scoped-slots': scopedSlots && Object.entries(scopedSlots).map(([name, slotApi]) => ({
-                name,
-                properties: slotApi.scope && Object.entries(slotApi.scope).map(([name, api]) => ({
-                  name,
-                  type: resolveType(api),
-                  description: getDescription(api),
-                  'doc-url': 'https://quasar.dev'
-                })),
-                description: getDescription(slotApi),
-                'doc-url': 'https://quasar.dev'
-              })),
+              slots: slotTypes,
               description: `${name} - Quasar component`,
-              'doc-url': 'https://quasar.dev'
+              'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
             }
             if (props && props.value && ((events && events.input) || props.value.category === 'model')) {
               result['vue-model'] = {
@@ -109,7 +121,7 @@ module.exports.generate = function (data) {
 
             return result
           }),
-          attributes: data.directives.map(({ name, api: { modifiers, value } }) => {
+          attributes: data.directives.map(({ name, api: { modifiers, value, meta } }) => {
             let valueType = value.type
             let result = {
               name: 'v-' + kebabCase(name),
@@ -119,13 +131,13 @@ module.exports.generate = function (data) {
               },
               required: false, // Directive is never required
               description: `${name} - Quasar directive`,
-              'doc-url': 'https://quasar.dev'
+              'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
             }
             if (modifiers) {
               result['vue-modifiers'] = Object.entries(modifiers).map(([name, api]) => ({
                 name,
                 description: getDescription(api),
-                'doc-url': 'https://quasar.dev'
+                'doc-url': meta.docsUrl || 'https://v1.quasar.dev'
               }))
             }
             if (valueType !== 'Boolean') {

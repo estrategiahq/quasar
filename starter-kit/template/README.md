@@ -7,7 +7,7 @@
 ### Rodando local
 ```bash
 npm install
-EMAIL="admin@estrategia.io" PASSWORD="password" API_URL="http://localhost:4003" npm run serve # Obtem token e injeta no service
+API_URL="http://localhost:4003" npm run serve
 ```
 
 ### Comandos
@@ -21,7 +21,7 @@ npm test:coverage
 
 ```sh
 # Variáveis de ambiente
-export API_URL=https://my-api.com/graphql
+export API_URL=https://my-api.com/
 export PUBLIC_PATH=/myapp  # O HTML vai tentar carregar o javascript e CSS como /myapp/index.js 
 export VERSION=master      # Versao ou branch escondida na metatag HTML
 quasar build

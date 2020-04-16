@@ -4,7 +4,7 @@ import QDialog from '../dialog/QDialog.js'
 import QMenu from '../menu/QMenu.js'
 
 import AnchorMixin from '../../mixins/anchor.js'
-import slot from '../../utils/slot.js'
+import { slot } from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QPopupProxy',
@@ -83,17 +83,17 @@ export default Vue.extend({
   },
 
   render (h) {
-    const child = slot(this, 'default')
+    const def = slot(this, 'default')
 
     let props = (
       this.type === 'menu' &&
-      child !== void 0 &&
-      child[0] !== void 0 &&
-      child[0].componentOptions !== void 0 &&
-      child[0].componentOptions.Ctor !== void 0 &&
-      child[0].componentOptions.Ctor.sealedOptions !== void 0 &&
+      def !== void 0 &&
+      def[0] !== void 0 &&
+      def[0].componentOptions !== void 0 &&
+      def[0].componentOptions.Ctor !== void 0 &&
+      def[0].componentOptions.Ctor.sealedOptions !== void 0 &&
       ['QDate', 'QTime', 'QCarousel', 'QColor'].includes(
-        child[0].componentOptions.Ctor.sealedOptions.name
+        def[0].componentOptions.Ctor.sealedOptions.name
       )
     ) ? { cover: true, maxHeight: '99vh' } : {}
 
@@ -113,11 +113,12 @@ export default Vue.extend({
     }
     else {
       component = QMenu
+      data.props.target = this.target
       data.props.contextMenu = this.contextMenu
       data.props.noParentEvent = true
       data.props.separateClosePopup = true
     }
 
-    return h(component, data, slot(this, 'default'))
+    return h(component, data, def)
   }
 })

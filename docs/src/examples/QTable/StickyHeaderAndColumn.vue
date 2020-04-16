@@ -6,7 +6,7 @@
       :data="data"
       :columns="columns"
       row-key="name"
-    ></q-table>
+    />
   </div>
 </template>
 
@@ -170,28 +170,36 @@ export default {
 
 <style lang="sass">
 .my-sticky-header-column-table
+  /* height or max-height is important */
+  height: 310px
+
   /* specifying max-width so the example can
     highlight the sticky column on any browser window */
   max-width: 600px
 
-  /* max height is important */
-  .q-table__middle
-    max-height: 200px
+  td:first-child
+    /* bg color is important for td; just specify one */
+    background-color: #c1f4cd !important
 
-  .q-table__top,
-  .q-table__bottom,
-  tr:first-child th, /* bg color is important for th; just specify one */
-  td:first-child /* bg color is important for td; just specify one */
-    background-color: #c1f4cd
-
-  tr:first-child th
+  tr th
     position: sticky
-    top: 0
-    opacity: 1 /* opacity is important */
-    z-index: 2 /* higher than z-index for td below */
+    /* higher than z-index for td below */
+    z-index: 2
+    /* bg color is important; just specify one */
+    background: #fff
 
+  /* this will be the loading indicator */
+  thead tr:last-child th
+    /* height of all previous header rows */
+    top: 48px
+    /* highest z-index */
+    z-index: 3
+  thead tr:first-child th
+    top: 0
+    z-index: 1
   tr:first-child th:first-child
-    z-index: 3 /* highest z-index */
+    /* highest z-index */
+    z-index: 3
 
   td:first-child
     z-index: 1

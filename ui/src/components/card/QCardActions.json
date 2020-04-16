@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "docsUrl": "https://v1.quasar.dev/vue-components/card"
+  },
+
   "behavior": {
     "$listeners": true
   },
@@ -8,8 +12,7 @@
       "type": "String",
       "desc": "Specify how to align the actions",
       "default": "left (for horizontal mode) / stretch (for vertical mode)",
-      "values": [ "left", "center", "right", "between", "around", "stretch" ],
-      "examples": [ "between" ],
+      "values": [ "left", "center", "right", "between", "around", "evenly", "stretch" ],
       "category": "content"
     },
 

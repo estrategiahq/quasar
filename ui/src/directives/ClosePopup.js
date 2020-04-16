@@ -1,4 +1,5 @@
 import { closePortals } from '../mixins/portal.js'
+import { isKeyCode } from '../utils/key-composition.js'
 
 /*
  * depth
@@ -34,7 +35,7 @@ export default {
       },
 
       handlerKey (evt) {
-        evt.keyCode === 13 && ctx.handler(evt)
+        isKeyCode(evt, 13) === true && ctx.handler(evt)
       }
     }
 
@@ -49,7 +50,7 @@ export default {
   },
 
   update (el, { value, oldValue }) {
-    if (value !== oldValue) {
+    if (el.__qclosepopup !== void 0 && value !== oldValue) {
       el.__qclosepopup.depth = getDepth(value)
     }
   },

@@ -17,7 +17,7 @@ export default {
 
   data () {
     return {
-      isDirty: false,
+      isDirty: null,
       innerError: false,
       innerErrorMessage: void 0
     }
@@ -28,7 +28,7 @@ export default {
       if (this.rules === void 0) {
         return
       }
-      if (this.lazyRules === true && this.isDirty === false) {
+      if (this.lazyRules === true && this.isDirty !== true) {
         return
       }
 
@@ -36,7 +36,12 @@ export default {
     },
 
     focused (focused) {
-      focused === false && this.__triggerValidation()
+      if (focused === true) {
+        this.__initDirty()
+      }
+      else {
+        this.__triggerValidation()
+      }
     }
   },
 
@@ -54,18 +59,24 @@ export default {
 
   mounted () {
     this.validateIndex = 0
-    this.focused === void 0 && this.$el.addEventListener('focusout', this.__triggerValidation)
+    if (this.focused === void 0) {
+      this.$el.addEventListener('focusin', this.__initDirty)
+      this.$el.addEventListener('focusout', this.__triggerValidation)
+    }
   },
 
   beforeDestroy () {
-    this.focused === void 0 && this.$el.removeEventListener('focusout', this.__triggerValidation)
+    if (this.focused === void 0) {
+      this.$el.removeEventListener('focusin', this.__initDirty)
+      this.$el.removeEventListener('focusout', this.__triggerValidation)
+    }
   },
 
   methods: {
     resetValidation () {
       this.validateIndex++
       this.innerLoading = false
-      this.isDirty = false
+      this.isDirty = null
       this.innerError = false
       this.innerErrorMessage = void 0
     },
@@ -137,27 +148,35 @@ export default {
 
       return Promise.all(promises).then(
         res => {
-          if (index === this.validateIndex) {
-            if (res === void 0 || Array.isArray(res) === false || res.length === 0) {
-              update(false)
-              return true
-            }
-            else {
-              const msg = res.find(r => r === false || typeof r === 'string')
-              update(msg !== void 0, msg)
-              return msg === void 0
-            }
+          if (index !== this.validateIndex) {
+            return true
           }
-          return true
+
+          if (res === void 0 || Array.isArray(res) === false || res.length === 0) {
+            update(false)
+            return true
+          }
+
+          const msg = res.find(r => r === false || typeof r === 'string')
+          update(msg !== void 0, msg)
+          return msg === void 0
         },
-        (e) => {
+        e => {
           if (index === this.validateIndex) {
             console.error(e)
             update(true)
             return false
           }
+
+          return true
         }
       )
+    },
+
+    __initDirty () {
+      if (this.isDirty === null) {
+        this.isDirty = false
+      }
     },
 
     __triggerValidation () {

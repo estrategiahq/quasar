@@ -82,18 +82,13 @@ export default Vue.extend({
     position: {
       type: String,
       default: 'top',
-      validator (val) {
-        return ['top', 'right', 'bottom', 'left'].includes(val)
-      }
+      validator: val => ['top', 'right', 'bottom', 'left'].includes(val)
     },
     size: {
       type: String,
       default: '2px'
     },
-    color: {
-      type: String,
-      default: 'red'
-    },
+    color: String,
     skipHijack: Boolean,
     reverse: Boolean
   },
@@ -109,11 +104,9 @@ export default Vue.extend({
 
   computed: {
     classes () {
-      return [
-        `q-loading-bar--${this.position}`,
-        `bg-${this.color}`,
-        this.animate === true ? '' : 'no-transition'
-      ]
+      return `q-loading-bar q-loading-bar--${this.position}` +
+        (this.color !== void 0 ? ` bg-${this.color}` : '') +
+        (this.animate === true ? '' : ' no-transition')
     },
 
     style () {
@@ -124,10 +117,10 @@ export default Vue.extend({
         pos: this.position,
         active,
         horiz: this.horizontal,
-        reverse: this.$q.lang.rtl && ['top', 'bottom'].includes(this.position)
+        reverse: this.$q.lang.rtl === true && ['top', 'bottom'].includes(this.position)
           ? !this.reverse
           : this.reverse,
-        dir: this.$q.lang.rtl ? -1 : 1
+        dir: this.$q.lang.rtl === true ? -1 : 1
       })
 
       o[this.sizeProp] = this.size
@@ -142,30 +135,58 @@ export default Vue.extend({
 
     sizeProp () {
       return this.horizontal ? 'height' : 'width'
+    },
+
+    attrs () {
+      return this.onScreen === true
+        ? {
+          role: 'progressbar',
+          'aria-valuemin': 0,
+          'aria-valuemax': 100,
+          'aria-valuenow': this.progress
+        }
+        : {
+          'aria-hidden': 'true'
+        }
     }
   },
 
   methods: {
     start (speed = 300) {
+      const oldSpeed = this.speed
+      this.speed = Math.max(0, speed) || 0
+
       this.calls++
-      if (this.calls > 1) { return }
+
+      if (this.calls > 1) {
+        if (oldSpeed === 0 && speed > 0) {
+          this.__work()
+        }
+        else if (oldSpeed > 0 && speed <= 0) {
+          clearTimeout(this.timer)
+        }
+        return
+      }
 
       clearTimeout(this.timer)
       this.$emit('start')
 
-      if (this.onScreen) { return }
-
       this.progress = 0
+
+      if (this.onScreen === true) { return }
+
       this.onScreen = true
       this.animate = false
       this.timer = setTimeout(() => {
         this.animate = true
-        this.__work(speed)
+        speed > 0 && this.__work()
       }, 100)
     },
 
     increment (amount) {
-      this.calls > 0 && (this.progress = inc(this.progress, amount))
+      if (this.calls > 0) {
+        this.progress = inc(this.progress, amount)
+      }
     },
 
     stop () {
@@ -191,18 +212,18 @@ export default Vue.extend({
       }
     },
 
-    __work (speed) {
+    __work () {
       if (this.progress < 100) {
         this.timer = setTimeout(() => {
           this.increment()
-          this.__work(speed)
-        }, speed)
+          this.__work()
+        }, this.speed)
       }
     }
   },
 
   mounted () {
-    if (!this.skipHijack) {
+    if (this.skipHijack !== true) {
       this.hijacked = true
       highjackAjax(this.start, this.stop)
     }
@@ -210,14 +231,14 @@ export default Vue.extend({
 
   beforeDestroy () {
     clearTimeout(this.timer)
-    this.hijacked && restoreAjax(this.start, this.stop)
+    this.hijacked === true && restoreAjax(this.start, this.stop)
   },
 
   render (h) {
     return h('div', {
-      staticClass: 'q-loading-bar',
       class: this.classes,
-      style: this.style
+      style: this.style,
+      attrs: this.attrs
     })
   }
 })

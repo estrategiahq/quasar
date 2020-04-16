@@ -8,7 +8,16 @@ Quasar Tree represents a highly configurable component that displays hierarchica
 <doc-installation components="QTree" />
 
 ## Usage
+
+### Basic
+
 <doc-example title="Basic" file="QTree/Basic" />
+
+### No connector lines <q-badge align="top" label="v1.5.10+" />
+
+<doc-example title="No connectors" file="QTree/NoConnectors" />
+
+### Dark
 
 <doc-example title="Dark" file="QTree/Dark" dark />
 
@@ -28,7 +37,7 @@ Notice (in the example below) the custom header and body slots.
 
 <doc-example title="Customizing nodes" file="QTree/SlotsCustomized" />
 
-:::warning
+::: warning
 Clicking or pressing `SPACE` or `ENTER` on the custom header selects the tree item (and the custom header is blurred).
 
 If you don't want this to happen just wrap the content of the custom header in a `<div @click.stop @keyup.13.32.stop>`.

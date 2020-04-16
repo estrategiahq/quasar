@@ -1,14 +1,12 @@
-const
-  logger = require('../helpers/logger'),
-  log = logger('app:mode'),
-  warn = logger('app:mode', 'red'),
-  getMode = require('./index')
+const logger = require('../helpers/logger')
+const warn = logger('app:mode', 'red')
+const getMode = require('./index')
 
 module.exports = function (mode, target) {
   const Mode = getMode(mode)
 
   if (Mode.isInstalled) {
-    if (mode === 'cordova') {
+    if (['cordova', 'capacitor'].includes(mode)) {
       Mode.addPlatform(target)
     }
     return

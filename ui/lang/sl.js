@@ -67,12 +67,12 @@ export default {
     hr: 'Vstavi horizontalno pravilo',
     undo: 'Razveljavi',
     redo: 'Uveljavi',
-    header1: 'Naslov 1',
-    header2: 'Naslov 2',
-    header3: 'Naslov 3',
-    header4: 'Naslov 4',
-    header5: 'Naslov 5',
-    header6: 'Naslov 6',
+    heading1: 'Naslov 1',
+    heading2: 'Naslov 2',
+    heading3: 'Naslov 3',
+    heading4: 'Naslov 4',
+    heading5: 'Naslov 5',
+    heading6: 'Naslov 6',
     paragraph: 'Odstavek',
     code: 'Koda',
     size1: 'Najmanjše',
@@ -82,7 +82,8 @@ export default {
     size5: 'Veliko',
     size6: 'Večje',
     size7: 'Največje',
-    defaultFont: 'Privzeta pisava'
+    defaultFont: 'Privzeta pisava',
+    viewSource: 'Prikaži vir'
   },
   tree: {
     noNodes: 'Ni dosegljivih vozlišč',

@@ -1,4 +1,5 @@
-import Platform from '../plugins/Platform.js'
+import { client } from '../plugins/Platform.js'
+import { isKeyCode } from '../utils/key-composition.js'
 
 export default {
   name: 'go-back',
@@ -13,10 +14,10 @@ export default {
       goBack () {
         const router = vnode.context.$router
 
-        if (ctx.single) {
+        if (ctx.single === true) {
           router.go(-1)
         }
-        else if (Platform.is.cordova === true) {
+        else if (client.is.nativeMobile === true) {
           router.go(ctx.position - window.history.length)
         }
         else {
@@ -25,8 +26,8 @@ export default {
       },
 
       goBackKey (e) {
-        // ENTER
-        e.keyCode === 13 && ctx.goBack()
+        // if ENTER key
+        isKeyCode(e, 13) === true && ctx.goBack()
       }
     }
 
@@ -39,9 +40,17 @@ export default {
     el.addEventListener('keyup', ctx.goBackKey)
   },
 
-  update (el, { value, oldValue }) {
-    if (value !== oldValue) {
-      el.__qgoback.value = value
+  update (el, { value, oldValue, modifiers }) {
+    const ctx = el.__qgoback
+
+    if (ctx !== void 0) {
+      if (value !== oldValue) {
+        ctx.value = value
+      }
+
+      if (ctx.single !== modifiers.single) {
+        ctx.single = modifiers.single
+      }
     }
   },
 

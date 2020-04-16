@@ -3,7 +3,8 @@ import Vue from 'vue'
 import TouchSwipe from '../directives/TouchSwipe.js'
 
 import { stop } from '../utils/event.js'
-import slot from '../utils/slot.js'
+import { slot } from '../utils/slot.js'
+import { cache } from '../utils/vm.js'
 
 const PanelWrapper = Vue.extend({
   name: 'QTabPanelWrapper',
@@ -14,9 +15,7 @@ const PanelWrapper = Vue.extend({
       attrs: { role: 'tabpanel' },
       // stop propagation of content emitted @input
       // which would tamper with Panel's model
-      on: {
-        input: stop
-      }
+      on: cache(this, 'stop', { input: stop })
     }, slot(this, 'default'))
   }
 })
@@ -34,15 +33,10 @@ export const PanelParentMixin = {
     animated: Boolean,
     infinite: Boolean,
     swipeable: Boolean,
+    vertical: Boolean,
 
-    transitionPrev: {
-      type: String,
-      default: 'slide-right'
-    },
-    transitionNext: {
-      type: String,
-      default: 'slide-left'
-    },
+    transitionPrev: String,
+    transitionNext: String,
 
     keepAlive: Boolean
   },
@@ -56,12 +50,13 @@ export const PanelParentMixin = {
 
   computed: {
     panelDirectives () {
-      if (this.swipeable) {
+      if (this.swipeable === true) {
         return [{
           name: 'touch-swipe',
           value: this.__swipe,
           modifiers: {
-            horizontal: true,
+            horizontal: this.vertical !== true,
+            vertical: this.vertical,
             mouse: true
           }
         }]
@@ -72,6 +67,14 @@ export const PanelParentMixin = {
       return typeof this.value === 'string' || typeof this.value === 'number'
         ? this.value
         : String(this.value)
+    },
+
+    transitionPrevComputed () {
+      return this.transitionPrev || `slide-${this.vertical === true ? 'down' : 'right'}`
+    },
+
+    transitionNextComputed () {
+      return this.transitionNext || `slide-${this.vertical === true ? 'up' : 'left'}`
     }
   },
 
@@ -143,7 +146,7 @@ export const PanelParentMixin = {
 
     __updatePanelTransition (direction) {
       const val = direction !== 0 && this.animated === true && this.panelIndex !== -1
-        ? 'q-transition--' + (direction === -1 ? this.transitionPrev : this.transitionNext)
+        ? 'q-transition--' + (direction === -1 ? this.transitionPrevComputed : this.transitionNextComputed)
         : null
 
       if (this.panelTransition !== val) {
@@ -181,7 +184,8 @@ export const PanelParentMixin = {
     },
 
     __swipe (evt) {
-      this.__go((this.$q.lang.rtl === true ? -1 : 1) * (evt.direction === 'left' ? 1 : -1))
+      const dir = this.vertical === true ? 'up' : 'left'
+      this.__go((this.$q.lang.rtl === true ? -1 : 1) * (evt.direction === dir ? 1 : -1))
     },
 
     __updatePanelIndex () {
@@ -218,7 +222,7 @@ export const PanelParentMixin = {
             attrs: { role: 'tabpanel' },
             // stop propagation of content emitted @input
             // which would tamper with Panel's model
-            on: { input: stop }
+            on: cache(this, 'stop', { input: stop })
           }, [ panel ])
         ]
 
@@ -235,11 +239,8 @@ export const PanelParentMixin = {
   },
 
   render (h) {
-    this.panels = this.$scopedSlots.default !== void 0
-      ? this.$scopedSlots.default()
-      : []
-
-    return this.__render(h)
+    this.panels = slot(this, 'default', [])
+    return this.__renderPanels(h)
   }
 }
 

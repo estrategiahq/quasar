@@ -28,8 +28,9 @@ export default {
   carousel: {
     left: 'mdi-chevron-left',
     right: 'mdi-chevron-right',
-    navigationIcon: 'mdi-circle',
-    thumbnails: 'mdi-view-carousel'
+    up: 'mdi-chevron-up',
+    down: 'mdi-chevron-down',
+    navigationIcon: 'mdi-circle'
   },
   chip: {
     remove: 'mdi-close-circle',
@@ -67,10 +68,24 @@ export default {
     hr: 'mdi-minus',
     undo: 'mdi-undo',
     redo: 'mdi-redo',
-    header: 'mdi-format-size',
+    heading: 'mdi-format-size',
+    heading1: 'mdi-format-header-1',
+    heading2: 'mdi-format-header-2',
+    heading3: 'mdi-format-header-3',
+    heading4: 'mdi-format-header-4',
+    heading5: 'mdi-format-header-5',
+    heading6: 'mdi-format-header-6',
     code: 'mdi-code-tags',
     size: 'mdi-format-size',
-    font: 'mdi-format-font'
+    size1: 'mdi-numeric-1-box',
+    size2: 'mdi-numeric-2-box',
+    size3: 'mdi-numeric-3-box',
+    size4: 'mdi-numeric-4-box',
+    size5: 'mdi-numeric-5-box',
+    size6: 'mdi-numeric-6-box',
+    size7: 'mdi-numeric-7-box',
+    font: 'mdi-format-font',
+    viewSource: 'mdi-code-tags'
   },
   expansionItem: {
     icon: 'mdi-chevron-down',

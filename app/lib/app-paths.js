@@ -1,18 +1,15 @@
-const
-  fs = require('fs'),
-  path = require('path'),
-  resolve = path.resolve,
-  join = path.join
+const fs = require('fs')
+const { normalize, resolve, join, sep } = require('path')
 
 function getAppDir () {
   let dir = process.cwd()
 
-  while (dir.length && dir[dir.length - 1] !== path.sep) {
+  while (dir.length && dir[dir.length - 1] !== sep) {
     if (fs.existsSync(join(dir, 'quasar.conf.js'))) {
       return dir
     }
 
-    dir = path.normalize(join(dir, '..'))
+    dir = normalize(join(dir, '..'))
   }
 
   const
@@ -24,14 +21,15 @@ function getAppDir () {
   process.exit(1)
 }
 
-const
-  appDir = getAppDir(),
-  cliDir = resolve(__dirname, '..'),
-  srcDir = resolve(appDir, 'src'),
-  pwaDir = resolve(appDir, 'src-pwa'),
-  ssrDir = resolve(appDir, 'src-ssr'),
-  cordovaDir = resolve(appDir, 'src-cordova'),
-  electronDir = resolve(appDir, 'src-electron')
+const appDir = getAppDir()
+const cliDir = resolve(__dirname, '..')
+const srcDir = resolve(appDir, 'src')
+const pwaDir = resolve(appDir, 'src-pwa')
+const ssrDir = resolve(appDir, 'src-ssr')
+const cordovaDir = resolve(appDir, 'src-cordova')
+const capacitorDir = resolve(appDir, 'src-capacitor')
+const electronDir = resolve(appDir, 'src-electron')
+const bexDir = resolve(appDir, 'src-bex')
 
 module.exports = {
   cliDir,
@@ -40,7 +38,9 @@ module.exports = {
   pwaDir,
   ssrDir,
   cordovaDir,
+  capacitorDir,
   electronDir,
+  bexDir,
 
   resolve: {
     cli: dir => join(cliDir, dir),
@@ -49,6 +49,8 @@ module.exports = {
     pwa: dir => join(pwaDir, dir),
     ssr: dir => join(ssrDir, dir),
     cordova: dir => join(cordovaDir, dir),
-    electron: dir => join(electronDir, dir)
+    capacitor: dir => join(capacitorDir, dir),
+    electron: dir => join(electronDir, dir),
+    bex: dir => join(bexDir, dir)
   }
 }

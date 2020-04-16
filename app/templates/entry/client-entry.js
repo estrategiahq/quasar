@@ -21,7 +21,7 @@ import '@quasar/extras/<%= asset %>/<%= asset %>.css'
 import '@quasar/extras/animate/<%= asset %>.css'
 <% }) %>
 
-// We load Quasar stylus files
+// We load Quasar stylesheet file
 import 'quasar/dist/quasar.<%= __css.quasarSrcExt %>'
 
 <% if (framework.cssAddon) { %>
@@ -58,14 +58,7 @@ import <%= importName %> from '<%= asset.path %>'
 import { addPreFetchHooks } from './client-prefetch.js'
 <% } %>
 
-<%
-const needsFastClick = ctx.mode.pwa || (ctx.mode.cordova && ctx.target.ios)
-if (needsFastClick) {
-%>
-import FastClick from '@quasar/fastclick'
-<% } %>
-
-<% if (ctx.mode.electron) { %>
+<% if (ctx.mode.electron && electron.nodeIntegration === true) { %>
 import electron from 'electron'
 Vue.prototype.$q.electron = electron
 <% } %>
@@ -80,18 +73,26 @@ console.info('[Quasar] Running <%= ctx.modeName.toUpperCase() + (ctx.mode.ssr &&
 <% if (ctx.mode.pwa) { %>console.info('[Quasar] Forcing PWA into the network-first approach to not break Hot Module Replacement while developing.')<% } %>
 <% } %>
 
-const { app, <%= store ? 'store, ' : '' %>router } = createApp()
-
-<% if (needsFastClick) { %>
-<% if (ctx.mode.pwa) { %>
+<% if (ctx.mode.cordova && ctx.target.ios) { %>
+import '@quasar/fastclick'
+<% } else if (ctx.mode.pwa) { %>
 // Needed only for iOS PWAs
 if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream && window.navigator.standalone) {
-<% } %>
-  FastClick()
-<% if (ctx.mode.pwa) { %>}<% } %>
+  import(/* webpackChunkName: "fastclick"  */ '@quasar/fastclick')
+}
 <% } %>
 
 async function start () {
+  const { app, <%= store ? 'store, ' : '' %>router } = await createApp()
+
+  <% if (ctx.mode.ssr && store && ssr.manualHydration !== true) { %>
+  // prime the store with server-initialized state.
+  // the state is determined during SSR and inlined in the page markup.
+  if (window.__INITIAL_STATE__) {
+    store.replaceState(window.__INITIAL_STATE__)
+  }
+  <% } %>
+
   <% if (bootNames.length > 0) { %>
   let routeUnchanged = true
   const redirect = url => {
@@ -135,15 +136,6 @@ async function start () {
   <% } %>
 
   <% if (ctx.mode.ssr) { %>
-
-    // prime the store with server-initialized state.
-    // the state is determined during SSR and inlined in the page markup.
-    <% if (store) { %>
-    if (window.__INITIAL_STATE__) {
-      store.replaceState(window.__INITIAL_STATE__)
-    }
-    <% } %>
-
     const appInstance = new Vue(app)
 
     // wait until router has resolved all async before hooks
@@ -164,12 +156,27 @@ async function start () {
     <% if (ctx.mode.cordova) { %>
     document.addEventListener('deviceready', () => {
     Vue.prototype.$q.cordova = window.cordova
+    <% } else if (ctx.mode.capacitor) { %>
+    Vue.prototype.$q.capacitor = window.Capacitor
     <% } %>
 
+    <% if (!ctx.mode.bex) { %>
       new Vue(app)
+    <% } %>
 
     <% if (ctx.mode.cordova) { %>
     }, false) // on deviceready
+    <% } %>
+
+    <% if (ctx.mode.bex) { %>
+      let vApp = null
+      window.QBexInit = function (shell) {
+        shell.connect(bridge => {
+          window.QBexBridge = bridge
+          Vue.prototype.$q.bex = window.QBexBridge
+          vApp = new Vue(app)
+        })
+      }
     <% } %>
 
   <% } // end of Non SSR %>

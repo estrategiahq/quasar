@@ -67,12 +67,12 @@ export default {
     hr: 'Insertar línea horizontal',
     undo: 'Deshacer',
     redo: 'Rehacer',
-    header1: 'Encabezado 1',
-    header2: 'Encabezado 2',
-    header3: 'Encabezado 3',
-    header4: 'Encabezado 4',
-    header5: 'Encabezado 5',
-    header6: 'Encabezado 6',
+    heading1: 'Encabezado 1',
+    heading2: 'Encabezado 2',
+    heading3: 'Encabezado 3',
+    heading4: 'Encabezado 4',
+    heading5: 'Encabezado 5',
+    heading6: 'Encabezado 6',
     paragraph: 'Párrafo',
     code: 'Código',
     size1: 'Muy pequeño',
@@ -82,7 +82,8 @@ export default {
     size5: 'Grande',
     size6: 'Muy grande',
     size7: 'Máximo',
-    defaultFont: 'Fuente por defecto'
+    defaultFont: 'Fuente por defecto',
+    viewSource: 'Ver fuente'
   },
   tree: {
     noNodes: 'Sin nodos disponibles',

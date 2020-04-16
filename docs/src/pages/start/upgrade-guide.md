@@ -1,6 +1,6 @@
 ---
 title: Upgrade Guide
-desc: How to upgrade Quasar from older versions.
+desc: How to upgrade Quasar from older versions to the latest one.
 ---
 
 :::tip
@@ -17,7 +17,6 @@ Simply replace the version string in all the CSS and JS tags that refer to Quasa
 ```bash
 # run these commands inside
 # of a Quasar v1 project
-# (need global @quasar/cli to be >= 1.0.0-beta.3)
 
 # check for upgradable packages
 $ quasar upgrade
@@ -156,9 +155,9 @@ The best way to start upgrading your project is to follow these steps:
   }
   ```
 
-10) In `quasar.conf.js`: **rename** the value `fontawesome` to `fontawesome-v5`, `mdi` to `mdi-v3` and `ionicons` to `ionicons-v4` inside the `extras` section, if you use them. Even if you don't use them it is still good practice to rename them in case you do use them in the future.
+10) In `quasar.conf.js`: **rename** the value `fontawesome` to `fontawesome-v5`, `mdi` to `mdi-v4` and `ionicons` to `ionicons-v4` inside the `extras` section, if you use them. Even if you don't use them it is still good practice to rename them in case you do use them in the future.
 
-11) In `quasar.conf.js` > `framework` > `iconSet` do same **rename** replacements as above to its value (`fontawesome` to `fontawesome-v5`, `mdi` to `mdi-v3` and `ionicons` to `ionicons-v4`)
+11) In `quasar.conf.js` > `framework` > `iconSet` do same **rename** replacements as above to its value (`fontawesome` to `fontawesome-v5`, `mdi` to `mdi-v4` and `ionicons` to `ionicons-v4`)
 
 12) In `quasar.conf.js`: **rename** in `framework` > `i18n` to `lang`
 
@@ -192,28 +191,41 @@ The best way to start upgrading your project is to follow these steps:
 
 16) **Remove** the global Legacy Quasar `quasar-cli` and **install** the new `@quasar/cli`. (You will still be able to run legacy 0.17 projects with it)
 
-**Remove** global Quasar CLI
+**Remove** global Quasar CLI (use Yarn or NPM, depending with which you've installed it in the first place):
 
 ```bash
+$ yarn global remove quasar-cli
+# or (depending on what you've installed it with)
 $ npm remove -g quasar-cli
 ```
 
 **Install** global Quasar CLI
 
 ```bash
+$ yarn global add @quasar/cli
+# or
 $ npm install -g @quasar/cli
 ```
+
+::: tip
+If you are using Yarn, make sure that the Yarn [global install location](https://yarnpkg.com/lang/en/docs/cli/global/) is in your PATH:
+
+```bash
+# in ~/.bashrc or equivalent
+export PATH="$(yarn global bin):$PATH"
+```
+:::
 
 17) Last, but not least, do a sanity check with `quasar info`:
 
   ```bash
   Global packages
-    @quasar/cli - 1.0.0-beta.0
+    @quasar/cli - 1.0.5
 
   Important local packages
-    quasar - 1.0.0-beta.3 -- High performance, Material Design 2, full front end stack with Vue.js -- build SPA, SSR, PWA, Hybrid Mobile Apps and Electron apps, all simultaneously using the same codebase
-    @quasar/app - 1.0.0-beta.5 -- Quasar Framework App CLI
-    @quasar/extras - 1.0.0 -- Quasar Framework fonts, icons and animations
+    quasar - 1.9.0 -- High performance, Material Design 2, full front end stack with Vue.js -- build SPA, SSR, PWA, Hybrid Mobile Apps and Electron apps, all simultaneously using the same codebase
+    @quasar/app - 1.5.4 -- Quasar Framework App CLI
+    @quasar/extras - 1.5.1 -- Quasar Framework fonts, icons and animations
   ```
 
   Notice the versions that are different from step 1.
@@ -245,20 +257,20 @@ The dist folder now strips out the `-mat` and `-ios` suffixes because there's on
 
 ### Animation
 
-- The JS and CSS animations were removed for v1. However, they will be offered as a separate Quasar package when v1 fully releases. Until then, if you need them, you can add them manually to your quasar project by pulling them directly out of the v0.17 repository and adding them to your project.
+- The JS and CSS animations were removed for v1. If you need them, you can add them manually to your quasar project by pulling them directly out of the v0.17 repository and adding them to your project.
 - [motion.styl](https://github.com/quasarframework/quasar/blob/v0.17/src/css/core/motion.styl)
 - [animate.js](https://github.com/quasarframework/quasar/blob/v0.17/src/utils/animate.js)
 
 ### Misc
 
 - `this.$q.i18n` was changed to `this.$q.lang`
-- ```import(`quasar-framework/i18n/${lang}`)``` was changed to ```import(`quasar/lang/${lang}`)``` where `${lang}` would be `en-us` etc.
+- ```import('quasar-framework/i18n/' + lang)``` was changed to ```import('quasar/lang/' + lang)``` where `lang` would be `en-us` etc.
 - The language pack `en-uk` was changed to `en-gb`
 - `this.$q.icons` was changed to `this.$q.iconSet`
 - In previous versions you would access an imported language packs isoName with:
 
 ```js
- import(`quasar/lang/${locale}`).then(lang => {
+ import('quasar/lang/' + locale).then(lang => {
    // Access the isoName with - lang.default.lang
  })
 ```
@@ -266,7 +278,7 @@ The dist folder now strips out the `-mat` and `-ios` suffixes because there's on
 This now needs changing to
 
 ```js
- import(`quasar/lang/${locale}`).then(lang => {
+ import('quasar/lang/' + locale).then(lang => {
    // Access the isoName with - lang.default.isoName
  })
 ```

@@ -28,8 +28,9 @@ export default {
   carousel: {
     left: 'ion-ios-arrow-back',
     right: 'ion-ios-arrow-forward',
-    navigationIcon: 'ion-square',
-    thumbnails: 'ion-grid'
+    up: 'ion-ios-arrow-up',
+    down: 'ion-ios-arrow-down',
+    navigationIcon: 'ion-square'
   },
   chip: {
     remove: 'ion-close-circle',
@@ -67,10 +68,11 @@ export default {
     hr: 'remove',
     undo: 'ion-undo',
     redo: 'ion-redo',
-    header: 'format_size',
+    heading: 'format_size',
     code: 'ion-code',
     size: 'format_size',
-    font: 'font_download'
+    font: 'font_download',
+    viewSource: 'ion-ios-code'
   },
   expansionItem: {
     icon: 'ion-arrow-dropdown',

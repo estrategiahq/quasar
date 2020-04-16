@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <div class="q-gutter-sm">
-    <q-list link>
+    <q-list>
       <!--
         Rendering a <label> tag (notice tag="label")
         so QCheckboxes will respond to clicks on QItems to
@@ -56,7 +56,7 @@
 export default {
   data () {
     return {
-      color: ['cyan']
+      color: [ 'cyan' ]
     }
   }
 }

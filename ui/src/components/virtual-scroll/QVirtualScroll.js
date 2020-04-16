@@ -1,10 +1,18 @@
 import Vue from 'vue'
 
-import QList from '../list/QList.js'
-import QMarkupTable from '../table/QMarkupTable.js'
+import QList from '../item/QList.js'
+import QMarkupTable from '../markup-table/QMarkupTable.js'
+import getTableMiddle from '../table/get-table-middle.js'
 import VirtualScroll from '../../mixins/virtual-scroll.js'
+import { getScrollTarget } from '../../utils/scroll.js'
 
 import { listenOpts } from '../../utils/event.js'
+import { mergeSlot } from '../../utils/slot.js'
+
+const comps = {
+  list: QList,
+  table: QMarkupTable
+}
 
 export default Vue.extend({
   name: 'QVirtualScroll',
@@ -15,7 +23,7 @@ export default Vue.extend({
     type: {
       type: String,
       default: 'list',
-      validator: v => ['list', 'table'].includes(v)
+      validator: v => ['list', 'table', '__qtable'].includes(v)
     },
 
     items: {
@@ -23,13 +31,8 @@ export default Vue.extend({
       default: () => []
     },
 
-    itemsFn: {
-      type: Function
-    },
-
-    itemsSize: {
-      type: Number
-    },
+    itemsFn: Function,
+    itemsSize: Number,
 
     scrollTarget: {
       default: void 0
@@ -91,23 +94,8 @@ export default Vue.extend({
     },
 
     __configureScrollTarget () {
-      let __scrollTarget = typeof this.scrollTarget === 'string' ? document.querySelector(this.scrollTarget) : this.scrollTarget
-
-      if (__scrollTarget === void 0) {
-        __scrollTarget = this.$el
-      }
-      else if (
-        __scrollTarget === document ||
-        __scrollTarget === document.body ||
-        __scrollTarget === document.scrollingElement ||
-        __scrollTarget === document.documentElement
-      ) {
-        __scrollTarget = window
-      }
-
-      this.__scrollTarget = __scrollTarget
-
-      __scrollTarget.addEventListener('scroll', this.__onVirtualScrollEvt, listenOpts.passive)
+      this.__scrollTarget = getScrollTarget(this.$el, this.scrollTarget)
+      this.__scrollTarget.addEventListener('scroll', this.__onVirtualScrollEvt, listenOpts.passive)
     },
 
     __unconfigureScrollTarget () {
@@ -145,15 +133,16 @@ export default Vue.extend({
     if (this.$scopedSlots.before !== void 0) {
       child = this.$scopedSlots.before().concat(child)
     }
-    if (this.$scopedSlots.after !== void 0) {
-      child = child.concat(this.$scopedSlots.after())
-    }
 
-    return h(this.type === 'list' ? QList : QMarkupTable, {
-      class: this.classes,
-      attrs: this.attrs,
-      props: this.$attrs,
-      on: this.$listeners
-    }, child)
+    child = mergeSlot(child, this, 'after')
+
+    return this.type === '__qtable'
+      ? getTableMiddle(h, { staticClass: this.classes }, child)
+      : h(comps[this.type], {
+        class: this.classes,
+        attrs: this.attrs,
+        props: this.$attrs,
+        on: this.$listeners
+      }, child)
   }
 })

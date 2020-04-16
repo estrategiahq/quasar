@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 import QIcon from '../icon/QIcon.js'
 
-import slot from '../../utils/slot.js'
+import { slot, uniqueSlot } from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QTh',
@@ -13,16 +13,17 @@ export default Vue.extend({
   },
 
   render (h) {
+    const on = this.$listeners
+
     if (this.props === void 0) {
-      return h('td', {
+      return h('th', {
+        on,
         class: this.autoWidth === true ? 'q-table--col-auto-width' : null
       }, slot(this, 'default'))
     }
 
-    let col
-    const
-      name = this.$vnode.key,
-      child = [].concat(slot(this, 'default'))
+    let col, child
+    const name = this.$vnode.key
 
     if (name) {
       col = this.props.colsMap[name]
@@ -37,6 +38,7 @@ export default Vue.extend({
         ? 'unshift'
         : 'push'
 
+      child = uniqueSlot(this, 'default', [])
       child[action](
         h(QIcon, {
           props: { name: this.$q.iconSet.table.arrowUp },
@@ -44,13 +46,24 @@ export default Vue.extend({
         })
       )
     }
+    else {
+      child = slot(this, 'default')
+    }
+
+    const evt = col.sortable === true
+      ? {
+        click: evt => {
+          this.props.sort(col)
+          this.$emit('click', evt)
+        }
+      }
+      : {}
 
     return h('th', {
+      on: { ...on, ...evt },
+      style: col.__thStyle,
       class: col.__thClass +
-        (this.autoWidth === true ? ' q-table--col-auto-width' : ''),
-      on: col.sortable === true
-        ? { click: () => { this.props.sort(col) } }
-        : null
+        (this.autoWidth === true ? ' q-table--col-auto-width' : '')
     }, child)
   }
 })

@@ -1,72 +1,62 @@
-const path = require('path')
-
-const {
-  sortDependencies,
-  installDependencies,
-  runLintFix,
-  printMessage,
-} = require('./utils')
-
-const pkg = require('./package.json')
+const { complete } = require('./utils')
 
 module.exports = {
-  helpers: {
-    template_version() {
-      return pkg.version
-    }
-  },
-
   prompts: {
     name: {
       type: 'string',
-      required: true,
       message: 'Nome do repositório',
+      validate: val => val && val.length > 0
     },
+
     productName: {
       type: 'string',
-      required: true,
       message: 'Nome do projeto',
       default: 'Back Office'
+      validate: val => val && val.length > 0
     },
+
     description: {
       type: 'string',
-      required: false,
       message: 'Descrição do projeto',
       default: 'Apenas mais uma Admin/Back Office em VueJS',
     },
+
     author: {
       type: 'string',
       message: 'Autor',
-      default: 'Estratégia'
+      default: 'Estratégia HQ'
     },
+
     css: {
       type: 'list',
-      message: 'Pré-processador CSS',
-      default: 'stylus',
+      message: 'Pick your favorite CSS preprocessor: (can be changed later)',
+      default: 'none',
       choices: [
+        {
+          name: 'None (the others will still be available)',
+          value: 'none',
+          short: 'None'
+        },
         {
           name: 'Stylus',
           value: 'stylus'
-        },
-        {
-          name: 'Nenhum. Vou usar CSS puro',
-          value: 'none',
-          short: 'None'
         }
       ]
     },
+
     importStrategy: {
       type: 'list',
       message: 'Modo de importação dos componentes Quasar',
-      default: 'false',
       choices: [
         {
           name: '* Vou adicionar manualmente o que deve ser importado no quasar.conf.js\n    - compilação mais rápida; bundle menor; mais chato.',
           value: 'false',
-          short: 'Manual'
+          short: 'Manual',
+          checked: true
         }
       ]
     },
+
     preset: {
       type: 'checkbox',
       message: 'Usar ESLint',
@@ -78,25 +68,51 @@ module.exports = {
         }
       ]
     },
+
+    typescriptConfig: {
+      when: 'preset.typescript',
+      type: 'list',
+      message: 'Pick a component style:',
+      choices: [
+        {
+          name:
+            'Composition API (recommended) (https://github.com/vuejs/composition-api)',
+          value: 'composition',
+          short: 'Composition',
+        },
+        {
+          name:
+            'Class-based (recommended) (https://github.com/vuejs/vue-class-component & https://github.com/kaorun343/vue-property-decorator)',
+          value: 'class',
+          short: 'Class',
+        },
+        {
+          name: 'Object API',
+          value: 'object',
+          short: 'object',
+        }
+      ]
+    },
+
     lintConfig: {
       when: 'preset.lint',
       type: 'list',
-      message: 'Usar o preset standar para o ESLint',
-      default: 'standard',
+      message: 'Usar o preset standard para o ESLint',
       choices: [
         {
           name: 'Standard (https://github.com/standard/standard)',
           value: 'standard',
-          short: 'Standard',
+          short: 'Standard'
         }
       ]
     },
+
     cordovaId: {
       type: 'string',
-      required: false,
       message: 'Cordova id (deixe em branco se esse projeto não vai ser um app mobile)',
       default: 'io.estrategia.app'
     },
+
     autoInstall: {
       type: 'list',
       message: 'Executar `npm install` após a criação do projeto?',
@@ -105,53 +121,59 @@ module.exports = {
         {
           name: 'Sim',
           value: 'npm',
-          short: 'NPM',
+          short: 'NPM'
         },
         {
           name: 'Não, depois eu executo `npm install` manualmente',
           value: false,
-          short: 'no',
+          short: 'no'
         }
       ]
     }
   },
+
   filters: {
-    '.eslintrc.js': 'preset.lint',
+    // ESlint files
     '.eslintignore': 'preset.lint',
-    '.stylintrc': 'preset.lint',
-    'src/store/**/*': 'preset.vuex',
-    'src/i18n/**/*': 'preset.i18n',
-    'src/boot/i18n.js': 'preset.i18n',
-    'src/boot/axios.js': 'preset.axios',
+    '.eslintrc.js': 'preset.lint',
+    
+    // Default files when not using TypeScript
+    'jsconfig.json': '!preset.typescript',
+    'src/router/*.js': '!preset.typescript',
+    
+    // Presets files when not using TypeScript
+    'src/boot/axios.js': 'preset.axios && !preset.typescript',
+    'src/boot/i18n.js': 'preset.i18n && !preset.typescript',
+    'src/i18n/**/*.js': 'preset.i18n && !preset.typescript',
+    'src/store/**/*.js': 'preset.vuex && !preset.typescript',
+    
+    // TypeScript files
+    '.prettierrc': `preset.lint && preset.typescript && lintConfig === 'prettier'`,
+    'tsconfig.json': 'preset.typescript',
+    'src/env.d.ts': 'preset.typescript',
+    'src/shims-vue.d.ts': 'preset.typescript',
+    'src/components/CompositionComponent.vue': `preset.typescript && typescriptConfig === 'composition'`,
+    'src/components/ClassComponent.vue': `preset.typescript && typescriptConfig === 'class'`,
+    'src/components/ObjectComponent.vue': `preset.typescript && typescriptConfig === 'object'`,
+    'src/components/models.ts': `preset.typescript`,
+    
+    // Default files using TypeScript
+    'src/router/*.ts': 'preset.typescript',
+    
+    // Presets files using TypeScript
+    'src/boot/axios.ts': 'preset.axios && preset.typescript',
+    'src/boot/composition-api.ts': `preset.typescript && typescriptConfig === 'composition'`,
+    'src/boot/i18n.ts': 'preset.i18n && preset.typescript',
+    'src/i18n/**/*.ts': 'preset.i18n && preset.typescript',
+    'src/store/**/*.ts': 'preset.vuex && preset.typescript',
+    
+    // CSS preprocessors
+    '.stylintrc': `preset.lint && css === 'stylus'`,
+    'src/css/*.styl': `css === 'stylus'`,
+    'src/css/*.scss': `css === 'scss'`,
+    'src/css/*.sass': `css === 'sass'`,
     'src/css/app.css': `css === 'none'`,
-    'src/css/app.styl': `css === 'stylus'`,
-    'src/css/quasar.variables.styl': `css === 'stylus'`,
-    'src/css/app.scss': `css === 'scss'`,
-    'src/css/quasar.variables.scss': `css === 'scss'`,
-    'src/css/app.sass': `css === 'sass'`,
-    'src/css/quasar.variables.sass': `css === 'sass'`
   },
-  complete: function(data, { chalk }) {
-    const green = chalk.green
 
-    sortDependencies(data, green)
-
-    const cwd = path.join(process.cwd(), data.inPlace ? '' : data.destDirName)
-
-    if (data.autoInstall) {
-      installDependencies(cwd, data.autoInstall, green)
-        .then(() => {
-          return runLintFix(cwd, data, green)
-        })
-        .then(() => {
-          printMessage(data, green)
-        })
-        .catch(e => {
-          console.log(chalk.red('Error:'), e)
-        })
-    }
-    else {
-      printMessage(data, chalk)
-    }
-  }
-}
+  complete
+};

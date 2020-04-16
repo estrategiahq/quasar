@@ -32,10 +32,10 @@ export default {
   },
 
   props: {
-    components: [Array, String],
-    directives: [Array, String],
-    plugins: [Array, String],
-    config: Object // TODO
+    components: [ Array, String ],
+    directives: [ Array, String ],
+    plugins: [ Array, String ],
+    config: String
   },
 
   data () {
@@ -57,25 +57,33 @@ export default {
   },
 
   computed: {
-    computedConfig () {
-      return Object.keys(this.config)
-        .map(name => `${name}: { /* ${this.config[name]} defaults */ }`)
+    quasarConf () {
+      return this.config !== void 0
+        ? `${this.config}: { /* look at QUASARCONFOPTIONS from the API card (bottom of page) */ }`
+        : void 0
     },
 
     QuasarCli () {
       const parts = []
 
-      ;['components', 'directives', 'plugins'].forEach(type => {
+      ;[ 'components', 'directives' ].forEach(type => {
         if (this[type] !== void 0) {
-          parts.push(`${type}: [
+          parts.push(`// NOT needed if using auto-import feature:
+    ${type}: [
       ${this.nameAsString(this[type], 6)}
     ]`)
         }
       })
 
-      if (this.config !== void 0) {
+      if (this.plugins !== void 0) {
+        parts.push(`plugins: [
+      ${this.nameAsString(this.plugins, 6)}
+    ]`)
+      }
+
+      if (this.quasarConf !== void 0) {
         parts.push(`config: {
-      ${this.computedConfig.join('\n' + ''.padStart(6, ' '))}
+      ${this.quasarConf}
     }`)
       }
 
@@ -89,13 +97,13 @@ return {
     },
 
     UMD () {
-      const config = this.config !== void 0
+      const config = this.quasarConf !== void 0
         ? `
 
 // Optional;
 // Place the global quasarConfig Object in a script tag BEFORE your Quasar script tag
 window.quasarConfig = {
-  ${this.computedConfig.join('\n' + ''.padStart(6, ' '))}
+  ${this.quasarConf}
 }`
         : ''
 
@@ -110,7 +118,7 @@ window.quasarConfig = {
     VueCli () {
       const types = [], imports = []
 
-      ;['components', 'directives', 'plugins'].forEach(type => {
+      ;[ 'components', 'directives', 'plugins' ].forEach(type => {
         if (this[type] !== void 0) {
           imports.push(this.nameAsString(this[type], 2, false))
           types.push(`${type}: {
@@ -119,9 +127,9 @@ window.quasarConfig = {
         }
       })
 
-      if (this.config !== void 0) {
+      if (this.quasarConf !== void 0) {
         types.push(`config: {
-    ${this.computedConfig.join('\n' + ''.padStart(4, ' '))}
+    ${this.quasarConf}
   }`)
       }
 

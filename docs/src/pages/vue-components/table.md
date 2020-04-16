@@ -33,7 +33,9 @@ Let’s take an example of configuring the `columns` property. We are going to t
 columns: [ // array of Objects
   // column Object definition
   {
-    // unique id (used by row-key, pagination.sortBy, ...)
+    // unique id
+    // identifies column
+    // (used by pagination.sortBy, "body-cell-[name]" slot, ...)
     name: 'desc',
 
     // label for header
@@ -41,7 +43,7 @@ columns: [ // array of Objects
 
     // row Object property to determine value for this column
     field: 'name',
-    // OR field: row => row.some.nested.prop
+    // OR field: row => row.some.nested.prop,
 
     // (optional) if we use visible-columns, this col will always be visible
     required: true,
@@ -54,18 +56,26 @@ columns: [ // array of Objects
 
     // (optional) compare function if you have
     // some custom data or want a specific way to compare two rows
-    sort: (a, b, rowA, rowB) => parseInt(a, 10) - parseInt(b, 10)
+    sort: (a, b, rowA, rowB) => parseInt(a, 10) - parseInt(b, 10),
     // function return value:
     //   * is less than 0 then sort a to an index lower than b, i.e. a comes first
     //   * is 0 then leave a and b unchanged with respect to each other, but sorted with respect to all different elements
     //   * is greater than 0 then sort b to an index lower than a, i.e. b comes first
 
     // (optional) you can format the data with a function
-    format: (val, row) => `${val}%`
+    format: (val, row) => `${val}%`,
+    // one more format example:
+    // format: val => val
+    //   ? /* Unicode checkmark checked */ "\u2611"
+    //   : /* Unicode checkmark unchecked */ "\u2610",
 
-    // v0.17.9+; if using scoped slots, apply this yourself instead
+    // body td:
     style: 'width: 500px',
-    classes: 'my-special-class'
+    classes: 'my-special-class',
+
+    // (v1.3+) header th:
+    headerStyle: 'width: 500px',
+    headerClasses: 'my-special-class'
   },
   { name: 'calories', label: 'Calories', field: 'calories', sortable: true },
   { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
@@ -116,6 +126,30 @@ Sticky headers and columns are achieved through CSS with `position: sticky`. Thi
 
 <doc-example title="No header/footer" file="QTable/NoHeaderFooter" />
 
+### Virtual scrolling <q-badge align="top" label="v1.2+" />
+
+Notice that when enabling virtual scroll you will need to specify the `table-style` (with a max-height) prop. In the example below, we are also forcing QTable to display all rows at once (note the use of `pagination` and `rows-per-page-options` props).
+
+<doc-example title="Basic virtual scroll" file="QTable/VirtscrollBasic" />
+
+You can dynamically load new rows when scroll reaches the end:
+
+<doc-example title="Dynamic loading virtual scroll" file="QTable/VirtscrollDynamic" />
+
+You can have both virtual scroll and pagination:
+
+<doc-example title="Virtual scroll and pagination" file="QTable/VirtscrollPagination" />
+
+The example below shows how virtual scroll can be used along with a sticky header. Notice the `virtual-scroll-sticky-start` prop which is set to the header height. Also note that this will NOT work in IE11 due to the lack of support for CSS prop "position" with value "sticky".
+
+<doc-example title="Virtual scroll with sticky header" file="QTable/VirtscrollSticky" />
+
+Starting with v1.8.4, there are 2 utility CSS classes that control VirtualScroll size calculation:
+* Use `q-virtual-scroll--with-prev` class on an element rendered by the VirtualScroll to indicate that the element should be grouped with the previous one (main use case is for multiple table rows generated from the same row of data).
+* Use `q-virtual-scroll--skip` class on an element rendered by the VirtualScroll to indicate that the element's size should be ignored in size calculations.
+
+<doc-example title="Virtual scroll with multiple rows for a data row" file="QTable/VirtscrollMultipleRows" />
+
 ### Selection
 
 ::: warning
@@ -124,13 +158,13 @@ The property `row-key` must be set in order for selection to work properly.
 
 <doc-example title="Single selection" file="QTable/SingleSelection" />
 
-<doc-example title="Multiple selection and custom selected rows label" file="QTable/MultipleSelection" />
+<doc-example title="Multiple selection" file="QTable/MultipleSelection" />
 
 ### Visible columns, custom top, fullscreen
 
-<doc-example title="Visible columns, custom top and fullscreen" file="QTable/VisibleColumns" />
+Please note that columns marked as `required` (in the column definition) cannot be toggled and are always visible.
 
-Another example:
+<doc-example title="Visible columns, custom top and fullscreen" file="QTable/VisibleColumns" />
 
 <doc-example title="Visible columns" file="QTable/VisibleColumns2" />
 
@@ -152,7 +186,11 @@ In the example below, we let QTable deal with displaying the grid mode (not usin
 
 <doc-example title="Grid style" file="QTable/GridStyle" />
 
+<doc-example title="Grid with header" file="QTable/GridHeader" />
+
 <doc-example title="Colored grid style" file="QTable/GridStyleColored" />
+
+<doc-example title="Masonry like grid" file="QTable/GridMasonry" />
 
 However, if you want to fully customize the content, check the example below, where:
   * We are using a Vue scoped slot called `item` to define how each record (the equivalent of a row in non-grid mode) should look. This allows you total freedom.
@@ -162,7 +200,21 @@ However, if you want to fully customize the content, check the example below, wh
 
 ### Expanding rows
 
-<doc-example title="Expanded row and custom selector" file="QTable/ExpandedRow" />
+::: warning
+Add unique (distinct) `key` on QTr if you generate more than one QTr from a row in data.
+:::
+
+<doc-example title="Internal expansion model" file="QTable/ExpandedRowInternal" />
+
+Starting with v1.8.3, an external expansion model can also be used:
+
+<doc-example title="External expansion model" file="QTable/ExpandedRowExternal" />
+
+If you are using virtual scroll with QTable, you should know that starting with v1.8.4 there are 2 utility CSS classes that control VirtualScroll size calculation:
+* Use `q-virtual-scroll--with-prev` class on an element rendered by the VirtualScroll to indicate that the element should be grouped with the previous one (main use case is for multiple table rows generated from the same row of data).
+* Use `q-virtual-scroll--skip` class on an element rendered by the VirtualScroll to indicate that the element's size should be ignored in size calculations.
+
+<doc-example title="Virtual scroll with expansion model" file="QTable/VirtscrollExpandedRow" />
 
 ### Before/after slots
 
@@ -182,7 +234,11 @@ When `pagination` has a property named `rowsNumber`, then this means that you’
 
 ### Loading state
 
-<doc-example title="Loading" file="QTable/Loading" />
+<doc-example title="Default loading" file="QTable/Loading" />
+
+The example below requires Quasar v1.8+:
+
+<doc-example title="Custom loading state" file="QTable/CustomLoading" />
 
 ### Custom top
 
@@ -194,7 +250,7 @@ The example below shows how you can use a slot to customize the entire row:
 
 <doc-example title="Body slot" file="QTable/SlotBody" />
 
-Bellow, we use a slot which gets applied to each body cell:
+Below, we use a slot which gets applied to each body cell:
 
 <doc-example title="Body-cell slot" file="QTable/SlotBodyCell" />
 
@@ -255,6 +311,12 @@ In the example below, steps have been taken to emulate an ajax call to a server.
 :::
 
 <doc-example title="Synchronizing with server" file="QTable/Synchronizing" />
+
+### Exporting data
+
+Below is an example of a naive csv encoding and then exporting table data by using the [exportFile](/quasar-utils/other-utils#Export-file) Quasar util. The browser should trigger a file download. For a more professional approach in regards to encoding we do recommend using [csv-parse](https://csv.js.org/parse/) and [csv-stringify](https://csv.js.org/stringify/) packages.
+
+<doc-example title="Export to csv" file="QTable/ExportCsv" no-edit />
 
 ## QTable API
 <doc-api file="QTable" />

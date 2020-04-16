@@ -1,16 +1,24 @@
 import Vue from 'vue'
 
+import DarkMixin from '../../mixins/dark.js'
 import { PanelParentMixin } from '../../mixins/panel.js'
 
 export default Vue.extend({
   name: 'QTabPanels',
 
-  mixins: [ PanelParentMixin ],
+  mixins: [ DarkMixin, PanelParentMixin ],
+
+  computed: {
+    classes () {
+      return 'q-tab-panels q-panel-parent' +
+        (this.isDark === true ? ' q-tab-panels--dark q-dark' : '')
+    }
+  },
 
   methods: {
-    __render (h) {
+    __renderPanels (h) {
       return h('div', {
-        staticClass: 'q-tab-panels q-panel-parent',
+        class: this.classes,
         directives: this.panelDirectives,
         on: this.$listeners
       }, this.__getPanelContent(h))

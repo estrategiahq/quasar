@@ -1,14 +1,15 @@
 import Vue from 'vue'
 
 import { isSSR } from './Platform.js'
+import { noop } from '../utils/event.js'
 import QAjaxBar from '../components/ajax-bar/QAjaxBar.js'
 
 export default {
   isActive: false,
-  start () {},
-  stop () {},
-  increment () {},
-  setDefaults () {},
+  start: noop,
+  stop: noop,
+  increment: noop,
+  setDefaults: noop,
 
   install ({ $q, cfg }) {
     if (isSSR === true) {
@@ -38,8 +39,8 @@ export default {
         this.isActive = bar.isActive = bar.calls > 0
       },
       increment: bar.increment,
-      setDefaults: def => {
-        Object.assign(props, def || {})
+      setDefaults: opts => {
+        opts === Object(opts) && Object.assign(props, opts)
         bar.$parent.$forceUpdate()
       }
     })

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 import { stopAndPrevent } from '../../utils/event.js'
-import slot from '../../utils/slot.js'
+import { slot } from '../../utils/slot.js'
 import { getAllChildren } from '../../utils/vm.js'
 
 export default Vue.extend({
@@ -29,8 +29,8 @@ export default Vue.extend({
       this.validateIndex++
 
       const components = getAllChildren(this)
-      const emit = res => {
-        this.$emit('validation-' + (res === true ? 'success' : 'error'))
+      const emit = (res, ref) => {
+        this.$emit('validation-' + (res === true ? 'success' : 'error'), ref)
       }
 
       for (let i = 0; i < components.length; i++) {
@@ -42,14 +42,14 @@ export default Vue.extend({
           if (typeof valid.then === 'function') {
             promises.push(
               valid.then(
-                v => ({ valid: v, comp }),
+                valid => ({ valid, comp }),
                 error => ({ valid: false, comp, error })
               )
             )
           }
           else if (valid !== true) {
             if (this.greedy === false) {
-              emit(false)
+              emit(false, comp)
 
               if (focus === true && typeof comp.focus === 'function') {
                 comp.focus()
@@ -73,9 +73,16 @@ export default Vue.extend({
       return Promise.all(promises).then(
         res => {
           if (index === this.validateIndex) {
-            const { valid, comp } = res[0]
+            const errors = res.filter(r => r.valid !== true)
 
-            emit(valid)
+            if (errors.length === 0) {
+              emit(true)
+              return true
+            }
+
+            const { valid, comp } = errors[0]
+
+            emit(false, comp)
 
             if (
               focus === true &&
@@ -85,7 +92,7 @@ export default Vue.extend({
               comp.focus()
             }
 
-            return valid
+            return false
           }
         }
       )
@@ -105,7 +112,14 @@ export default Vue.extend({
       evt !== void 0 && stopAndPrevent(evt)
 
       this.validate().then(val => {
-        val === true && this.$emit('submit', evt)
+        if (val === true) {
+          if (this.$listeners.submit !== void 0) {
+            this.$emit('submit', evt)
+          }
+          else if (evt !== void 0 && evt.target !== void 0 && typeof evt.target.submit === 'function') {
+            evt.target.submit()
+          }
+        }
       })
     },
 
@@ -123,8 +137,10 @@ export default Vue.extend({
     },
 
     focus () {
-      const target = this.$el.querySelector('[autofocus]') || this.$el.querySelector('[tabindex]')
-      target !== null && target.focus()
+      const target = this.$el.querySelector('[autofocus], [data-autofocus]') ||
+        [].find.call(this.$el.querySelectorAll('[tabindex]'), el => el.tabIndex > -1)
+
+      target !== null && target !== void 0 && target.focus()
     }
   },
 

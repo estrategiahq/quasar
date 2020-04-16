@@ -1,7 +1,6 @@
-const
-  createChain = require('./create-chain'),
-  log = require('../helpers/logger')('app:webpack'),
-  extensionRunner = require('../app-extension/extensions-runner')
+const createChain = require('./create-chain')
+const log = require('../helpers/logger')('app:webpack')
+const extensionRunner = require('../app-extension/extensions-runner')
 
 async function getWebpackConfig (chain, cfg, {
   name,
@@ -43,6 +42,7 @@ async function getWebpackConfig (chain, cfg, {
 async function getSPA (cfg) {
   const chain = createChain(cfg, 'SPA')
   require('./spa')(chain, cfg)
+
   return await getWebpackConfig(chain, cfg, {
     name: 'SPA',
     hot: true,
@@ -54,6 +54,7 @@ async function getPWA (cfg) {
   const chain = createChain(cfg, 'PWA')
   require('./spa')(chain, cfg) // extending a SPA
   require('./pwa')(chain, cfg)
+
   return await getWebpackConfig(chain, cfg, {
     name: 'PWA',
     hot: true,
@@ -64,6 +65,7 @@ async function getPWA (cfg) {
 async function getCordova (cfg) {
   const chain = createChain(cfg, 'Cordova')
   require('./cordova')(chain, cfg)
+
   return await getWebpackConfig(chain, cfg, {
     name: 'Cordova',
     hot: true,
@@ -71,10 +73,20 @@ async function getCordova (cfg) {
   })
 }
 
+async function getCapacitor (cfg) {
+  const chain = createChain(cfg, 'Capacitor')
+  require('./capacitor')(chain, cfg)
+
+  return await getWebpackConfig(chain, cfg, {
+    name: 'Capacitor',
+    hot: true,
+    invokeParams: { isClient: true, isServer: false }
+  })
+}
+
 async function getElectron (cfg) {
-  const
-    rendererChain = createChain(cfg, 'Renderer process'),
-    mainChain = require('./electron/main')(cfg, 'Main process')
+  const rendererChain = createChain(cfg, 'Renderer process')
+  const mainChain = require('./electron/main')(cfg, 'Main process')
 
   require('./electron/renderer')(rendererChain, cfg)
 
@@ -93,9 +105,8 @@ async function getElectron (cfg) {
 }
 
 async function getSSR (cfg) {
-  const
-    client = createChain(cfg, 'Client'),
-    server = createChain(cfg, 'Server')
+  const client = createChain(cfg, 'Client')
+  const server = createChain(cfg, 'Server')
 
   require('./ssr/client')(client, cfg)
   if (cfg.ctx.mode.pwa) {
@@ -104,7 +115,7 @@ async function getSSR (cfg) {
 
   require('./ssr/server')(server, cfg)
 
-  return {
+  const webpackCfg = {
     client: await getWebpackConfig(client, cfg, {
       name: 'Client',
       hot: true,
@@ -113,6 +124,37 @@ async function getSSR (cfg) {
     server: await getWebpackConfig(server, cfg, {
       name: 'Server',
       invokeParams: { isClient: false, isServer: true }
+    })
+  }
+
+  if (cfg.ctx.prod) {
+    const webserverChain = require('./ssr/webserver')(cfg, 'Webserver')
+    webpackCfg.webserver = await getWebpackConfig(webserverChain, cfg, {
+      name: 'Webserver',
+      cfgExtendBase: cfg.ssr,
+      hookSuffix: 'Webserver'
+    })
+  }
+
+  return webpackCfg
+}
+
+async function getBEX (cfg) {
+  const rendererChain = createChain(cfg, 'Renderer process')
+  const mainChain = require('./bex/main')(cfg, 'Main process')
+
+  require('./bex/renderer')(rendererChain, cfg) // before SPA so we can set some vars
+  require('./spa')(rendererChain, cfg) // extending a SPA
+
+  return {
+    renderer: await getWebpackConfig(rendererChain, cfg, {
+      name: 'Renderer process',
+      hot: true,
+      invokeParams: { isClient: true, isServer: false }
+    }),
+    main: await getWebpackConfig(mainChain, cfg, {
+      name: 'Main process',
+      hookSuffix: 'MainBexProcess'
     })
   }
 }
@@ -129,8 +171,14 @@ module.exports = async function (cfg) {
   else if (mode.cordova) {
     return await getCordova(cfg)
   }
+  else if (mode.capacitor) {
+    return await getCapacitor(cfg)
+  }
   else if (mode.pwa) {
     return await getPWA(cfg)
+  }
+  else if (mode.bex) {
+    return await getBEX(cfg)
   }
   else {
     return await getSPA(cfg)

@@ -1,10 +1,11 @@
 import Vue from 'vue'
 
-import QScrollObserver from '../observer/QScrollObserver.js'
-import QResizeObserver from '../observer/QResizeObserver.js'
+import QScrollObserver from '../scroll-observer/QScrollObserver.js'
+import QResizeObserver from '../resize-observer/QResizeObserver.js'
 import { onSSR } from '../../plugins/Platform.js'
 import { getScrollbarWidth } from '../../utils/scroll.js'
-import slot from '../../utils/slot.js'
+import { mergeSlot } from '../../utils/slot.js'
+import { cache } from '../../utils/vm.js'
 
 export default Vue.extend({
   name: 'QLayout',
@@ -27,8 +28,8 @@ export default Vue.extend({
   data () {
     return {
       // page related
-      height: onSSR === true ? 0 : window.innerHeight,
-      width: onSSR === true || this.container === true ? 0 : window.innerWidth,
+      height: this.$q.screen.height,
+      width: this.container === true ? 0 : this.$q.screen.width,
 
       // container only prop
       containerHeight: 0,
@@ -93,6 +94,15 @@ export default Vue.extend({
           width: `calc(100% + ${this.scrollbarWidth}px)`
         }
       }
+    },
+
+    totalWidth () {
+      return this.width + this.scrollbarWidth
+    },
+
+    classes () {
+      return 'q-layout q-layout--' +
+        (this.container === true ? 'containerized' : 'standard')
     }
   },
 
@@ -102,26 +112,25 @@ export default Vue.extend({
 
   render (h) {
     const layout = h('div', {
-      staticClass: 'q-layout q-layout--' +
-        (this.container === true ? 'containerized' : 'standard'),
-      style: this.style
-    }, [
+      class: this.classes,
+      style: this.style,
+      on: this.$listeners
+    }, mergeSlot([
       h(QScrollObserver, {
-        on: { scroll: this.__onPageScroll }
+        on: cache(this, 'scroll', { scroll: this.__onPageScroll })
       }),
+
       h(QResizeObserver, {
-        on: { resize: this.__onPageResize }
+        on: cache(this, 'resizeOut', { resize: this.__onPageResize })
       })
-    ].concat(
-      slot(this, 'default')
-    ))
+    ], this, 'default'))
 
     return this.container === true
       ? h('div', {
         staticClass: 'q-layout-container overflow-hidden'
       }, [
         h(QResizeObserver, {
-          on: { resize: this.__onContainerResize }
+          on: cache(this, 'resizeIn', { resize: this.__onContainerResize })
         }),
         h('div', {
           staticClass: 'absolute-full',

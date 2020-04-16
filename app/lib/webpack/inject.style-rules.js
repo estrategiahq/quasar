@@ -1,10 +1,9 @@
 const ExtractLoader = require('mini-css-extract-plugin').loader
 const merge = require('webpack-merge')
 
-const
-  appPaths = require('../app-paths'),
-  cssVariables = require('../helpers/css-variables'),
-  postCssConfig = require(appPaths.resolve.app('.postcssrc.js'))
+const appPaths = require('../app-paths')
+const cssVariables = require('../helpers/css-variables')
+const postCssConfig = require(appPaths.resolve.app('.postcssrc.js'))
 
 function injectRule (chain, pref, lang, test, loader, loaderOptions) {
   const baseRule = chain.module.rule(lang).test(test)
@@ -21,25 +20,27 @@ function injectRule (chain, pref, lang, test, loader, loaderOptions) {
   create(normalRule, false)
 
   function create (rule, modules) {
-    if (pref.extract) {
-      rule.use('mini-css-extract')
-        .loader(ExtractLoader)
-        .options({ publicPath: '../' })
-    }
-    else {
-      rule.use('vue-style-loader')
-        .loader('vue-style-loader')
-        .options({
-          sourceMap: pref.sourceMap
-        })
+    if (pref.serverExtract !== true) {
+      if (pref.extract) {
+        rule.use('mini-css-extract')
+          .loader(ExtractLoader)
+          .options({ publicPath: '../' })
+      }
+      else {
+        rule.use('vue-style-loader')
+          .loader('vue-style-loader')
+          .options({
+            sourceMap: pref.sourceMap
+          })
+      }
     }
 
     const cssLoaderOptions = {
       importLoaders:
-        1 + // stylePostLoader injected by vue-loader
+        (pref.serverExtract ? 0 : 1) + // stylePostLoader injected by vue-loader
         1 + // postCSS loader
         (!pref.extract && pref.minify ? 1 : 0) + // postCSS with cssnano
-        (loader ? (loader === 'stylus-loader' ? 2 : 1) : 0),
+        (loader ? (loader === 'stylus-loader' || loader === 'sass-loader' ? 2 : 1) : 0),
       sourceMap: pref.sourceMap
     }
 
@@ -117,9 +118,12 @@ module.exports = function (chain, pref) {
     preferPathResolver: 'webpack',
     ...pref.stylusLoaderOptions
   })
-  injectRule(chain, pref, 'scss', /\.scss$/, 'sass-loader', pref.scssLoaderOptions)
+  injectRule(chain, pref, 'scss', /\.scss$/, 'sass-loader', merge(
+    { sassOptions: { outputStyle: /* required for RTL */ 'nested' } },
+    pref.scssLoaderOptions
+  )),
   injectRule(chain, pref, 'sass', /\.sass$/, 'sass-loader', merge(
-    { sassOptions: { indentedSyntax: true } },
+    { sassOptions: { indentedSyntax: true, outputStyle: /* required for RTL */ 'nested' } },
     pref.sassLoaderOptions
   ))
   injectRule(chain, pref, 'less', /\.less$/, 'less-loader', pref.lessLoaderOptions)
