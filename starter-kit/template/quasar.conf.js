@@ -176,8 +176,8 @@ module.exports = {{#preset.typescript}}configure({{/preset.typescript}}function 
 
     // https://quasar.dev/quasar-cli/developing-pwa/configuring-pwa
     pwa: {
-      workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
-      workboxOptions: {}, // only for GenerateSW
+      // workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
+      // workboxOptions: {}, // only for GenerateSW
       manifest: {
         name: '{{ productName }}',
         {{#preset.typescript}}// eslint-disable-next-line @typescript-eslint/camelcase{{/preset.typescript}}

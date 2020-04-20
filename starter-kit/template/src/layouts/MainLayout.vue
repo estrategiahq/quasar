@@ -24,7 +24,7 @@
           active-class="drawer-menu-active"
         >
           <q-item-section avatar class="q-mini-drawer-only">
-            {{ i.abbreviation }}
+            \\{{ i.abbreviation }}
           </q-item-section>
           <q-item-section>
             <q-item-label>{{ i.name }}</q-item-label>

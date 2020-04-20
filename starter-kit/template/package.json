@@ -21,8 +21,9 @@
     {{#preset.axios}}"axios": "^0.19.2",{{/preset.axios}}
     {{#preset.i18n}}"vue-i18n": "^8.0.0",{{/preset.i18n}}
     "frontend-libs": "git+ssh://git@github.com/estrategiahq/frontend-libs.git#0.0.6",
-    "@quasar/extras": "REPO_URL/extras.tar.gz",
-    "quasar": "REPO_URL/ui.tar.gz"
+    "@quasar/extras": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.9.15/extras.tar.gz",
+    "quasar": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.9.15/ui.tar.gz",
+    "axios": "0.19.2"
   },
   "devDependencies": {
     {{#preset.lint}}
@@ -52,7 +53,7 @@
     {{/preset.lint}}
     "@types/node": "^10.17.15",
     {{/preset.typescript}}
-    "@quasar/app": "REPO_URL/app.tar.gz"
+    "@quasar/app": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.9.15/app.tar.gz"
   },
   "engines": {
     "node": ">= 10.18.1",

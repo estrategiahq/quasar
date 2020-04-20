@@ -14,7 +14,7 @@ if (!token && process.env.TOKEN) {
 }
 
 instance.defaults.headers.common['Content-Type'] = 'application/json'
-instance.defaults.headers.common['Authorization'] = `Bearer ${token}`
+instance.defaults.headers.common.Authorization = `Bearer ${token}`
 
 instance.interceptors.request.use(function (config) {
   bus.publish(events.LOADING_START)
