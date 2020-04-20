@@ -11,7 +11,7 @@ module.exports = {
     productName: {
       type: 'string',
       message: 'Nome do projeto',
-      default: 'Back Office'
+      default: 'Back Office',
       validate: val => val && val.length > 0
     },
 

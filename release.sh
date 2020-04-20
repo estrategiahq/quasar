@@ -19,6 +19,9 @@ for i in ${folders[@]}; do
     tar czf "$i.tar.gz" $i
 done
 
+
+sedy "s,REPO_URL,$REPO_URL,g" "cli/bin/quasar-create"
+
 # Compila e compacta o quasar (pasta ui)
 if [ "$1" == "build" ] && [ ! -d "ui/dist" ]; then
     sedy "s,REPO_URL,$REPO_URL,g" "ui/package.json"

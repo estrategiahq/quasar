@@ -95,9 +95,9 @@ const
   name = inPlace ? path.relative('../', process.cwd()) : rawName,
   to = path.resolve(rawName || '.')
 
-if (isLocalPath(template) !== true) {
-  template += '#' + (argv.branch || 'master')
-}
+// if (isLocalPath(template) !== true) { */
+//   template += '#' + (argv.branch || 'master') */
+// } */
 
 const tmp = path.join(home, '.quasar-starter-kits', template.replace(/[\/:]/g, '-'))
 
