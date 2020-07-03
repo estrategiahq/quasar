@@ -1,6 +1,6 @@
 import axios from 'axios'
 import bus from '../libs/bus'
-import { events } from '../constants'
+import { events, VERTICAL } from '../constants'
 
 const instance = axios.create({
   baseURL: process.env.API_URL,
@@ -15,6 +15,7 @@ if (!token && process.env.TOKEN) {
 
 instance.defaults.headers.common['Content-Type'] = 'application/json'
 instance.defaults.headers.common.Authorization = `Bearer ${token}`
+instance.defaults.headers.common['X-Vertical'] = localStorage.getItem(VERTICAL)
 
 instance.interceptors.request.use(function (config) {
   bus.publish(events.LOADING_START)
