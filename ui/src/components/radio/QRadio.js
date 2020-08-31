@@ -7,7 +7,7 @@ import RefocusTargetMixin from '../../mixins/refocus-target.js'
 
 import { stopAndPrevent } from '../../utils/event.js'
 import { slot, mergeSlot } from '../../utils/slot.js'
-import { cache } from '../../utils/vm.js'
+import cache from '../../utils/cache.js'
 
 export default Vue.extend({
   name: 'QRadio',
@@ -87,7 +87,7 @@ export default Vue.extend({
       }
 
       if (this.disable === true) {
-        attrs['aria-disabled'] = ''
+        attrs['aria-disabled'] = 'true'
       }
 
       return attrs
@@ -102,7 +102,7 @@ export default Vue.extend({
       }
 
       if (this.disable !== true && this.isTrue !== true) {
-        this.$emit('input', this.val)
+        this.$emit('input', this.val, e)
       }
     }
   },
@@ -111,7 +111,7 @@ export default Vue.extend({
     const content = [
       h('svg', {
         staticClass: 'q-radio__bg absolute',
-        attrs: { focusable: 'false' /* needed for IE11 */, viewBox: '0 0 24 24' }
+        attrs: { focusable: 'false' /* needed for IE11 */, viewBox: '0 0 24 24', 'aria-hidden': 'true' }
       }, [
         h('path', {
           attrs: {

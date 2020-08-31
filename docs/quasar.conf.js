@@ -19,19 +19,13 @@ module.exports = function (ctx) {
       'material-icons'
     ],
 
-    supportIE: true,
-    preFetch: true,
+    // preFetch: true,
 
     build: {
-      scopeHoisting: true,
       vueRouterMode: 'history',
       showProgress: ctx.dev,
-      // preloadChunks: false,
-      // vueCompiler: true,
-      // gzip: true,
-      // analyze: true,
-      // extractCSS: false,
       distDir: 'dist/quasar.dev',
+      // analyze: true,
 
       chainWebpack (chain) {
         chain.module.rule('eslint')
@@ -74,14 +68,14 @@ module.exports = function (ctx) {
     },
 
     devServer: {
-      https: ctx.mode.pwa === true,
+      // https: true,
       port: 9090,
       open: true // opens browser window automatically
     },
 
     framework: {
-      all: true,
-      iconSet: 'svg-mdi-v4',
+      importStrategy: 'all',
+      iconSet: 'svg-mdi-v5',
 
       config: {
         loadingBar: {
@@ -99,8 +93,15 @@ module.exports = function (ctx) {
     pwa: {
       // workboxPluginMode: 'InjectManifest',
       workboxOptions: {
+        cleanupOutdatedCaches: true,
         skipWaiting: true,
-        clientsClaim: true
+        clientsClaim: true,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/cdn/,
+            handler: 'StaleWhileRevalidate'
+          }
+        ]
       },
       manifest: {
         name: 'Quasar Documentation',
@@ -148,32 +149,20 @@ module.exports = function (ctx) {
       }
     },
 
-    cordova: {
-      // id: 'org.cordova.quasar.app'
-    },
+    vendor: {
+      remove: [
+        'quasar/dist/api',
 
-    electron: {
-      // bundler: 'builder', // or 'packager'
-      extendWebpack (cfg) {
-        // do something with Electron process Webpack cfg
-      },
-      packager: {
-        // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
-
-        // OS X / Mac App Store
-        // appBundleId: '',
-        // appCategoryType: '',
-        // osxSign: '',
-        // protocol: 'myapp://path',
-
-        // Window only
-        // win32metadata: { ... }
-      },
-      builder: {
-        // https://www.electron.build/configuration/configuration
-
-        // appId: 'quasar-app'
-      }
+        // following are used by algolia
+        'algoliasearch',
+        'autocomplete.js',
+        'hogan.js',
+        'request',
+        'stack-utils',
+        'to-factory',
+        'zepto',
+        'es6-promise'
+      ]
     }
   }
 }

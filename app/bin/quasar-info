@@ -16,8 +16,10 @@ if (argv.help) {
   console.log(`
   Description
     Displays information about your machine and your Quasar App.
+
   Usage
     $ quasar info
+
   Options
     --help, -h     Displays this message
   `)
@@ -66,6 +68,7 @@ print({ key: 'Global packages', section: true })
 print({ key: '  NPM', value: getSpawnOutput('npm') })
 print({ key: '  yarn', value: getSpawnOutput('yarn') })
 print({ key: '  @quasar/cli', value: chalk.green(process.env.QUASAR_CLI_VERSION) })
+print({ key: '  @quasar/icongenie', value: getSpawnOutput('icongenie') })
 print({ key: '  cordova', value: getSpawnOutput('cordova') })
 
 print({ key: 'Important local packages', section: true })
@@ -74,6 +77,7 @@ print({ key: 'Important local packages', section: true })
   'quasar',
   '@quasar/app',
   '@quasar/extras',
+  'eslint-plugin-quasar',
   'vue',
   'vue-router',
   'vuex',
@@ -88,7 +92,8 @@ print({ key: 'Important local packages', section: true })
   'webpack',
   'webpack-dev-server',
   'workbox-webpack-plugin',
-  'register-service-worker'
+  'register-service-worker',
+  'typescript'
 ].forEach(pkg => print(safePkgInfo(pkg)))
 
 print({ key: 'Quasar App Extensions', section: true })

@@ -1,14 +1,13 @@
 const fse = require('fs-extra')
 
-const log = require('../helpers/logger')('app:capacitor')
-const warn = require('../helpers/logger')('app:capacitor', 'red')
+const { log, warn, fatal } = require('../helpers/logger')
 const CapacitorConfig = require('./capacitor-config')
 const { spawn, spawnSync } = require('../helpers/spawn')
 const onShutdown = require('../helpers/on-shutdown')
 const appPaths = require('../app-paths')
 const openIde = require('../helpers/open-ide')
 
-const capacitorCliPath = require('./capacitor-cli-path')
+const { capBin } = require('./cap-cli')
 
 class CapacitorRunner {
   constructor () {
@@ -116,10 +115,10 @@ class CapacitorRunner {
       [ `assemble${this.ctx.debug ? 'Debug' : 'Release'}` ].concat(argv._),
       { cwd: appPaths.resolve.capacitor('android') },
       () => {
-        console.log()
-        console.log(` ⚠️  Gradle build failed!`)
-        console.log(` ⚠️  As an alternative, you can use the "--ide" param and build from the IDE.`)
-        console.log()
+        warn()
+        warn(`Gradle build failed!`)
+        warn(`As an alternative, you can use the "--ide" param and build from the IDE.`)
+        warn()
       }
     )
 
@@ -137,15 +136,14 @@ class CapacitorRunner {
   __runCapacitorCommand (args) {
     return new Promise(resolve => {
       this.pid = spawn(
-        capacitorCliPath,
+        capBin,
         args,
         { cwd: appPaths.capacitorDir },
         code => {
           this.__cleanup()
 
           if (code) {
-            warn(`⚠️  [FAIL] Capacitor CLI has failed`)
-            process.exit(1)
+            fatal(`[FAIL] Capacitor CLI has failed`)
           }
 
           resolve && resolve()

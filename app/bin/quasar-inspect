@@ -33,7 +33,7 @@ if (argv.help) {
 
   Options
     --cmd, -c        Quasar command [dev|build] (default: dev)
-    --mode, -m       App mode [spa|ssr|pwa|cordova|capacitor|electron] (default: spa)
+    --mode, -m       App mode [spa|ssr|pwa|bex|cordova|capacitor|electron] (default: spa)
     --depth, -d      Number of levels deep (default: 5)
     --path, -p       Path of config in dot notation
                         Examples:
@@ -47,13 +47,15 @@ if (argv.help) {
 require('../lib/helpers/ensure-argv')(argv, 'inspect')
 require('../lib/helpers/banner')(argv, argv.cmd)
 
+const { log, fatal } = require('../lib/helpers/logger')
+
 if (argv.mode !== 'spa') {
-  require('../lib/mode/install-missing')(argv.mode, argv.target)
+  const getMode = require('../lib/mode/index')
+  if (getMode(argv.mode).isInstalled !== true) {
+    fatal('Requested mode for inspection is NOT installed.\n')
+  }
 }
 
-const logger = require('../lib/helpers/logger')
-const log = logger('app:inspect')
-const warn = logger('app:inspect', 'red')
 const QuasarConfig = require('../lib/quasar-config')
 
 const depth = parseInt(argv.depth, 10) || Infinity
@@ -65,12 +67,14 @@ function getCfgEntries (webpackConfig, mode) {
       { name: 'Client', webpackCfg: webpackConfig.client }
     ]
   }
-  if (mode === 'electron') {
+
+  if (mode === 'electron' || mode === 'bex') {
     return [
       { name: 'Renderer', webpackCfg: webpackConfig.renderer },
       { name: 'Main', webpackCfg: webpackConfig.main }
     ]
   }
+
   return [ { name: 'Main', webpackCfg: webpackConfig } ]
 }
 
@@ -80,7 +84,9 @@ async function inspect () {
 
   const ctx = getQuasarCtx({
     mode: argv.mode,
-    target: argv.target,
+    target: argv.mode === 'cordova' || argv.mode === 'capacitor'
+      ? 'android'
+      : void 0,
     debug: argv.debug,
     dev: argv.cmd === 'dev',
     prod: argv.cmd === 'build'
@@ -96,8 +102,7 @@ async function inspect () {
   }
   catch (e) {
     console.log(e)
-    warn(`⚠️ [FAIL] quasar.conf.js has JS errors`)
-    process.exit(1)
+    fatal(`[FAIL] quasar.conf.js has JS errors`)
   }
 
   await quasarConfig.compile()

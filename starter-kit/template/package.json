@@ -18,22 +18,20 @@
     "vue-class-component": "^7.2.2",
     "vue-property-decorator": "^8.3.0",
     {{/if_eq}}
-    {{#preset.axios}}"axios": "^0.19.2",{{/preset.axios}}
-    {{#preset.i18n}}"vue-i18n": "^8.0.0",{{/preset.i18n}}
-    "frontend-libs": "git+ssh://git@github.com/estrategiahq/frontend-libs.git#0.0.6",
-    "@quasar/extras": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.9.15/extras.tar.gz",
-    "quasar": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.9.15/ui.tar.gz",
-    "axios": "0.19.2"
+    "frontend-libs": "git+ssh://git@github.com/estrategiahq/frontend-libs.git#0.0.7",
+    "@quasar/extras": "REPO_URL/extras.tar.gz",
+    "quasar": "REPO_URL/ui.tar.gz",
+    "axios": "0.20.0"
   },
   "devDependencies": {
     {{#preset.lint}}
     "babel-eslint": "^10.1.0",
-    "eslint": "^6.8.0",
-    "eslint-loader": "^4.0.0",
+    "eslint": "^7.8.0",
+    "eslint-loader": "^4.0.2",
     "eslint-plugin-vue": "^6.2.2",
     {{#if_eq lintConfig "standard"}}
     "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
@@ -51,9 +49,9 @@
     "@typescript-eslint/eslint-plugin": "^2.17.0",
     "@typescript-eslint/parser": "^2.17.0",
     {{/preset.lint}}
-    "@types/node": "^10.17.15",
+    "@types/node": "^14.6.2",
     {{/preset.typescript}}
-    "@quasar/app": "https://github.com/estrategiaconcursos/quasar/releases/download/v1.9.15/app.tar.gz"
+    "@quasar/app": "REPO_URL/app.tar.gz"
   },
   "engines": {
     "node": ">= 10.18.1",
@@ -64,7 +62,7 @@
     "last 1 version, not dead, ie >= 11"
   ]{{#preset.lint}},
   "resolutions": {
-    "@babel/parser": "7.7.5"
+    "@babel/parser": "7.11.5"
   }
   {{/preset.lint}}
 }

@@ -6,9 +6,7 @@ if (process.env.NODE_ENV === void 0) {
 
 const parseArgs = require('minimist')
 
-const logger = require('../lib/helpers/logger')
-const log = logger('app:dev')
-const warn = logger('app:dev', 'red')
+const { log, warn, fatal } = require('../lib/helpers/logger')
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -59,7 +57,7 @@ if (argv.help) {
 
     Only for Cordova mode:
     --target, -T     (required) App target
-                        [android|ios|blackberry10|browser|osx|ubuntu|webos|windows]
+                        [android|ios]
     --emulator, -e   (optional) Emulator name
                         Examples: iPhone-7, iPhone-X
                         iPhone-X,com.apple.CoreSimulator.SimRuntime.iOS-12-2
@@ -82,11 +80,6 @@ ensureArgv(argv, 'dev')
 const banner = require('../lib/helpers/banner')
 banner(argv, 'dev')
 
-if (argv.mode !== 'spa') {
-  const installMissing = require('../lib/mode/install-missing')
-  installMissing(argv.mode, argv.target)
-}
-
 const findPort = require('../lib/helpers/net').findClosestOpenPort
 
 async function parseAddress ({ host, port }) {
@@ -108,7 +101,7 @@ async function parseAddress ({ host, port }) {
     const openPort = await findPort(port, host)
     if (port !== openPort) {
       warn()
-      warn(`️️⚠️  Setting port to closest one available: ${openPort}`)
+      warn(`️️Setting port to closest one available: ${openPort}`)
       warn()
 
       port = openPort
@@ -118,13 +111,13 @@ async function parseAddress ({ host, port }) {
     warn()
 
     if (e.message === 'ERROR_NETWORK_PORT_NOT_AVAIL') {
-      warn(`⚠️  Could not find an open port. Please configure a lower one to start searching with.`)
+      warn(`Could not find an open port. Please configure a lower one to start searching with.`)
     }
     else if (e.message === 'ERROR_NETWORK_ADDRESS_NOT_AVAIL') {
-      warn(`⚠️  Invalid host specified. No network address matches. Please specify another one.`)
+      warn(`Invalid host specified. No network address matches. Please specify another one.`)
     }
     else {
-      warn(`⚠️  Unknown network error occurred`)
+      warn(`Unknown network error occurred`)
       console.log(e)
     }
 
@@ -168,7 +161,7 @@ function startVueDevtools () {
     nodePackager,
     cmdParam.concat('@vue/devtools'),
     { cwd: appPaths.appDir, env: { ...process.env, NODE_ENV: 'development' } },
-    () => warn('⚠️  Failed to install vue-devtools')
+    () => warn('Failed to install vue-devtools')
   )
 
   // a small delay is a must, otherwise require.resolve
@@ -181,6 +174,11 @@ function startVueDevtools () {
 }
 
 async function goLive () {
+  if (argv.mode !== 'spa') {
+    const installMissing = require('../lib/mode/install-missing')
+    await installMissing(argv.mode, argv.target)
+  }
+
   const DevServer = require('../lib/dev-server')
   const QuasarConfig = require('../lib/quasar-config')
   const Generator = require('../lib/generator')
@@ -218,8 +216,7 @@ async function goLive () {
   }
   catch (e) {
     console.log(e)
-    warn(`⚠️  [FAIL] quasar.conf.js has JS errors`)
-    process.exit(1)
+    fatal(`[FAIL] quasar.conf.js has JS errors`)
   }
 
   await quasarConfig.compile()

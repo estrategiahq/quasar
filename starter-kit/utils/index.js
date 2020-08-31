@@ -1,7 +1,6 @@
-const
-  path = require('path'),
-  fs = require('fs'),
-  spawn = require('child_process').spawn
+const path = require('path')
+const fs = require('fs')
+const spawn = require('child_process').spawn
 
 const lintStyles = ['standard', 'airbnb', 'prettier']
 
@@ -84,9 +83,9 @@ function lintMsg(data) {
  */
 function printMessage(data, { green, yellow }) {
   const message = `
- ${green('[*] Projeto criado com sucesso!')}
+ ${green('[*] Quasar Project initialization finished!')}
 
-Para executar:
+To get started:
 
   ${yellow(
     `${data.inPlace ? '' : `cd ${data.destDirName}\n  `}${installMsg(
@@ -94,7 +93,18 @@ Para executar:
     )}${lintMsg(data)}quasar dev`
   )}
 
-Divirta-se!
+Documentation can be found at: https://quasar.dev
+
+Quasar is relying on donations to evolve. We'd be very grateful if you can
+read our manifest on "Why donations are important": https://quasar.dev/why-donate
+Donation campaign: https://donate.quasar.dev
+Any amount is very welcomed.
+If invoices are required, please first contact razvan@quasar.dev
+
+Please give us a star on Github if you appreciate our work:
+https://github.com/quasarframework/quasar
+
+Enjoy! - Quasar Team
 `
   console.log(message)
 }
@@ -105,7 +115,7 @@ Divirta-se!
  * @param {Object} data Data from the questionnaire
  */
 function installMsg(data) {
-  return !data.autoInstall ? 'npm install (não use yarn)\n  ' : ''
+  return !data.autoInstall ? 'npm install (or if using yarn: yarn)\n  ' : ''
 }
 
 /**

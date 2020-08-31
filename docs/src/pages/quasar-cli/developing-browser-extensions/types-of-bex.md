@@ -67,7 +67,7 @@ const setIFrameHeight = height => {
 }
 
 /**
- * Reset the iFrame to it's default height e.g The height of the top bar.
+ * Reset the iFrame to its default height e.g The height of the top bar.
  */
 const resetIFrameHeight = () => {
   setIFrameHeight(defaultFrameHeight)
@@ -94,7 +94,7 @@ export default function attachContentHooks (bridge) {
 }
 
 /**
- * The code below will get everything going. Initialise the iFrame with defaults and add it to the page.
+ * The code below will get everything going. Initialize the iFrame with defaults and add it to the page.
  * @type {string}
  */
 iFrame.id = 'bex-app-iframe'
@@ -120,7 +120,7 @@ Object.assign(iFrame.style, {
 })()
 ```
 
-* `src-bex/css/content-css.js`
+* `src-bex/css/content-css.css`
 
 Add a margin to the top of our document so our Quasar toolbar doesn't overlap the actual page content.
 

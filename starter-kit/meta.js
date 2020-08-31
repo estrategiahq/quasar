@@ -1,57 +1,59 @@
 const { complete } = require('./utils')
+const escape = val => JSON.stringify(val).slice(1, -1)
 
 module.exports = {
   prompts: {
     name: {
       type: 'string',
-      message: 'Nome do repositório',
+      message: 'Project name (internal usage for dev)',
       validate: val => val && val.length > 0
     },
 
     productName: {
       type: 'string',
-      message: 'Nome do projeto',
-      default: 'Back Office',
-      validate: val => val && val.length > 0
+      message: 'Project product name (must start with letter if building mobile apps)',
+      default: 'Quasar App',
+      validate: val => val && val.length > 0,
+      transformer: escape
     },
 
     description: {
       type: 'string',
-      message: 'Descrição do projeto',
-      default: 'Apenas mais uma Admin/Back Office em VueJS',
+      message: 'Project description',
+      default: 'A Quasar Framework app',
+      transformer: escape
     },
 
     author: {
       type: 'string',
-      message: 'Autor',
-      default: 'Estratégia HQ'
+      message: 'Author'
     },
 
     css: {
       type: 'list',
       message: 'Pick your favorite CSS preprocessor: (can be changed later)',
-      default: 'none',
+      default: 'stylus',
       choices: [
+        {
+          name: 'Stylus',
+          value: 'stylus'
+        },
         {
           name: 'None (the others will still be available)',
           value: 'none',
           short: 'None'
-        },
-        {
-          name: 'Stylus',
-          value: 'stylus'
         }
       ]
     },
 
     importStrategy: {
       type: 'list',
-      message: 'Modo de importação dos componentes Quasar',
+      message: 'Pick a Quasar components & directives import strategy: (can be changed later)',
       choices: [
         {
-          name: '* Vou adicionar manualmente o que deve ser importado no quasar.conf.js\n    - compilação mais rápida; bundle menor; mais chato.',
-          value: 'false',
-          short: 'Manual',
+          name: '* Import everything from Quasar\n    - not treeshaking Quasar; biggest bundle size',
+          value: 'all',
+          short: 'Import everything',
           checked: true
         }
       ]
@@ -59,12 +61,16 @@ module.exports = {
 
     preset: {
       type: 'checkbox',
-      message: 'Usar ESLint',
+      message: 'Check the features needed for your project:',
       choices: [
         {
-          name: 'ESLint',
+          name: 'ESLint (recommended)',
           value: 'lint',
           checked: true
+        },
+        {
+          name: 'Vuex',
+          value: 'vuex'
         }
       ]
     },
@@ -87,9 +93,9 @@ module.exports = {
           short: 'Class',
         },
         {
-          name: 'Object API',
-          value: 'object',
-          short: 'object',
+          name: 'Options API',
+          value: 'options',
+          short: 'options',
         }
       ]
     },
@@ -97,36 +103,30 @@ module.exports = {
     lintConfig: {
       when: 'preset.lint',
       type: 'list',
-      message: 'Usar o preset standard para o ESLint',
+      message: 'Pick an ESLint preset:',
       choices: [
         {
           name: 'Standard (https://github.com/standard/standard)',
           value: 'standard',
-          short: 'Standard'
+          short: 'Standard',
         }
       ]
     },
 
-    cordovaId: {
-      type: 'string',
-      message: 'Cordova id (deixe em branco se esse projeto não vai ser um app mobile)',
-      default: 'io.estrategia.app'
-    },
-
     autoInstall: {
       type: 'list',
-      message: 'Executar `npm install` após a criação do projeto?',
-      default: 'npm',
+      message:
+        'Continue to install project dependencies after the project has been created? (recommended)',
       choices: [
         {
-          name: 'Sim',
+          name: 'Yes, use NPM',
           value: 'npm',
-          short: 'NPM'
+          short: 'NPM',
         },
         {
-          name: 'Não, depois eu executo `npm install` manualmente',
+          name: 'No, I will handle that myself',
           value: false,
-          short: 'no'
+          short: 'no',
         }
       ]
     }
@@ -136,17 +136,17 @@ module.exports = {
     // ESlint files
     '.eslintignore': 'preset.lint',
     '.eslintrc.js': 'preset.lint',
-    
+
     // Default files when not using TypeScript
     'jsconfig.json': '!preset.typescript',
     'src/router/*.js': '!preset.typescript',
-    
+
     // Presets files when not using TypeScript
     'src/boot/axios.js': 'preset.axios && !preset.typescript',
     'src/boot/i18n.js': 'preset.i18n && !preset.typescript',
     'src/i18n/**/*.js': 'preset.i18n && !preset.typescript',
     'src/store/**/*.js': 'preset.vuex && !preset.typescript',
-    
+
     // TypeScript files
     '.prettierrc': `preset.lint && preset.typescript && lintConfig === 'prettier'`,
     'tsconfig.json': 'preset.typescript',
@@ -154,19 +154,19 @@ module.exports = {
     'src/shims-vue.d.ts': 'preset.typescript',
     'src/components/CompositionComponent.vue': `preset.typescript && typescriptConfig === 'composition'`,
     'src/components/ClassComponent.vue': `preset.typescript && typescriptConfig === 'class'`,
-    'src/components/ObjectComponent.vue': `preset.typescript && typescriptConfig === 'object'`,
+    'src/components/OptionsComponent.vue': `preset.typescript && typescriptConfig === 'options'`,
     'src/components/models.ts': `preset.typescript`,
-    
+
     // Default files using TypeScript
     'src/router/*.ts': 'preset.typescript',
-    
+
     // Presets files using TypeScript
     'src/boot/axios.ts': 'preset.axios && preset.typescript',
     'src/boot/composition-api.ts': `preset.typescript && typescriptConfig === 'composition'`,
     'src/boot/i18n.ts': 'preset.i18n && preset.typescript',
     'src/i18n/**/*.ts': 'preset.i18n && preset.typescript',
     'src/store/**/*.ts': 'preset.vuex && preset.typescript',
-    
+
     // CSS preprocessors
     '.stylintrc': `preset.lint && css === 'stylus'`,
     'src/css/*.styl': `css === 'stylus'`,

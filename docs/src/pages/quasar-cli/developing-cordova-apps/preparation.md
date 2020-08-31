@@ -1,5 +1,5 @@
 ---
-title: Cordova App Preparation
+title: Preparation for Cordova App
 desc: What you need to do before developing a Quasar hybrid mobile app with Cordova.
 ---
 Before we dive in to the actual development, we need to do some preparation work.
@@ -29,7 +29,7 @@ to "Tools > SDK Manager > SDK Tools" then un-ticking "Hide Obsolete Packages" an
 
 ```bash
 export ANDROID_HOME="$HOME/Android/Sdk"
-PATH=$PATH:$ANDROID_HOME/tools; PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/tools; PATH=$PATH:$ANDROID_HOME/platform-tools
 ```
 
 > Please note that sometimes the `/Android/Sdk` folder is added inside `/Library/` inside your user folder. Check your user folder and if the `/Android/` folder is only inside `/Library/` do: `export ANDROID_HOME="$HOME/Library/Android/Sdk"` instead.
@@ -53,7 +53,7 @@ setx path "%path%;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools;<gradle_pat
 
 After the tools are installed, setup Android Studio with the correct SDK and create a virtual machine.
 
-* Start Android studio by changing into the folder you installed it in and run `./studio.sh`. Next step is to install the individual SDKs:
+* Start Android studio (check the executable in the folder that you installed it in). Next step is to install the individual SDKs:
 
 * Open the "Configure" menu at the bottom of the window:
 

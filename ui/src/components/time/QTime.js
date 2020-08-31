@@ -7,7 +7,7 @@ import { slot } from '../../utils/slot.js'
 import { formatDate, __splitDate } from '../../utils/date.js'
 import { position } from '../../utils/event.js'
 import { pad } from '../../utils/format.js'
-import { cache } from '../../utils/vm.js'
+import cache from '../../utils/cache.js'
 import DateTimeMixin from '../../mixins/datetime.js'
 
 export default Vue.extend({
@@ -46,8 +46,8 @@ export default Vue.extend({
   data () {
     const model = __splitDate(
       this.value,
-      this.__getComputedMask(),
-      this.__getComputedLocale(),
+      this.__getMask(),
+      this.__getLocale(),
       this.calendar,
       this.__getDefaultDateModel()
     )
@@ -93,6 +93,18 @@ export default Vue.extend({
           this.isAM = model.hour < 12
         }
       }
+    },
+
+    computedMask () {
+      this.$nextTick(() => {
+        this.__updateValue()
+      })
+    },
+
+    computedLocale () {
+      this.$nextTick(() => {
+        this.__updateValue()
+      })
     }
   },
 
@@ -104,10 +116,6 @@ export default Vue.extend({
         (this.bordered === true ? ` q-time--bordered` : '') +
         (this.square === true ? ` q-time--square no-border-radius` : '') +
         (this.flat === true ? ` q-time--flat no-shadow` : '')
-    },
-
-    computedMask () {
-      return this.__getComputedMask()
     },
 
     stringModel () {
@@ -260,11 +268,16 @@ export default Vue.extend({
       this.view = 'Hour'
     },
 
+    __getMask () {
+      return this.calendar !== 'persian' && this.mask !== null
+        ? this.mask
+        : `HH:mm${this.withSeconds === true ? ':ss' : ''}`
+    },
+
     __getDefaultDateModel () {
       if (typeof this.defaultDate !== 'string') {
         const date = this.__getCurrentDate()
         date.dateHash = date.year + '/' + pad(date.month) + '/' + pad(date.day)
-
         return date
       }
 
@@ -272,6 +285,10 @@ export default Vue.extend({
     },
 
     __click (evt) {
+      if (this._isBeingDestroyed === true || this._isDestroyed === true) {
+        return
+      }
+
       // __activate() has already updated the offset
       // (on desktop only, through mousedown event)
       if (this.$q.platform.is.desktop !== true) {
@@ -282,7 +299,9 @@ export default Vue.extend({
     },
 
     __activate (evt) {
-      this.__updateClock(evt, this.__getClockRect())
+      if (this._isBeingDestroyed !== true && this._isDestroyed !== true) {
+        this.__updateClock(evt, this.__getClockRect())
+      }
     },
 
     __getClockRect () {
@@ -330,14 +349,15 @@ export default Vue.extend({
     },
 
     __updateClock (evt, clockRect, cacheVal) {
-      let
-        val,
+      const
         pos = position(evt),
         height = Math.abs(pos.top - clockRect.top),
         distance = Math.sqrt(
           Math.pow(Math.abs(pos.top - clockRect.top), 2) +
           Math.pow(Math.abs(pos.left - clockRect.left), 2)
-        ),
+        )
+      let
+        val,
         angle = Math.asin(height / distance) * (180 / Math.PI)
 
       if (pos.top < clockRect.top) {
@@ -657,20 +677,11 @@ export default Vue.extend({
         return
       }
 
-      this.__updateValue({})
-    },
-
-    __getComputedMask () {
-      return this.calendar !== 'persian' && this.mask !== null
-        ? this.mask
-        : `HH:mm${this.withSeconds === true ? ':ss' : ''}`
+      this.__updateValue()
     },
 
     __updateValue (obj) {
-      const date = {
-        ...this.innerModel,
-        ...obj
-      }
+      const date = Object.assign({ ...this.innerModel }, obj)
 
       const val = this.calendar === 'persian'
         ? pad(date.hour) + ':' +
@@ -713,7 +724,7 @@ export default Vue.extend({
 
     return h('div', {
       class: this.classes,
-      on: this.$listeners,
+      on: { ...this.qListeners },
       attrs: { tabindex: -1 }
     }, [
       this.__getHeader(h),

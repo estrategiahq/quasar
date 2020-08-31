@@ -7,7 +7,7 @@ const format = require('util').format
  * Prefix.
  */
 
-const prefix = '  Quasar CLI Estrategia Edition'
+const prefix = '  Quasar CLI'
 const sep = chalk.gray('·')
 
 /**

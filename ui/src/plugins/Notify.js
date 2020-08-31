@@ -5,12 +5,11 @@ import QIcon from '../components/icon/QIcon.js'
 import QBtn from '../components/btn/QBtn.js'
 
 import { noop } from '../utils/event.js'
+import { getBodyFullscreenElement } from '../utils/dom.js'
 import { isSSR } from './Platform.js'
 
 let uid = 0
-let defaults = {}
-
-const attrs = { role: 'alert' }
+const defaults = {}
 
 const positionList = [
   'top-left', 'top-right',
@@ -59,7 +58,7 @@ const Notifications = {
       this.notifs[pos] = []
 
       const
-        vert = ['left', 'center', 'right'].includes(pos) ? 'center' : (pos.indexOf('top') > -1 ? 'top' : 'bottom'),
+        vert = ['left', 'center', 'right'].includes(pos) === true ? 'center' : (pos.indexOf('top') > -1 ? 'top' : 'bottom'),
         align = pos.indexOf('left') > -1 ? 'start' : (pos.indexOf('right') > -1 ? 'end' : 'center'),
         classes = ['left', 'right'].includes(pos) ? `items-${pos === 'left' ? 'start' : 'end'} justify-center` : (pos === 'center' ? 'flex-center' : `items-${align}`)
 
@@ -74,7 +73,7 @@ const Notifications = {
         return false
       }
 
-      let notif = { textColor: 'white' }
+      const notif = { textColor: 'white' }
 
       if (typeof config === 'string' || config.ignoreDefaults !== true) {
         Object.assign(notif, defaults)
@@ -88,7 +87,7 @@ const Notifications = {
         }
       }
       else {
-        Object.assign(notif, { message: config })
+        notif.message = config
       }
 
       notif.meta = {
@@ -146,8 +145,9 @@ const Notifications = {
           : this.$q.lang.label.close
       })
 
-      notif.actions = actions.map(({ handler, noDismiss, ...item }) => ({
+      notif.actions = actions.map(({ handler, noDismiss, attrs, ...item }) => ({
         props: { flat: true, ...item },
+        attrs,
         on: {
           click: typeof handler === 'function'
             ? () => {
@@ -175,7 +175,12 @@ const Notifications = {
           (notif.multiLine === true ? 'column no-wrap justify-center' : 'row items-center'),
 
         contentClass: 'q-notification__content row items-center' +
-          (notif.multiLine === true ? '' : ' col')
+          (notif.multiLine === true ? '' : ' col'),
+
+        attrs: {
+          role: 'alert',
+          ...notif.attrs
+        }
       })
 
       if (notif.group === false) {
@@ -341,7 +346,7 @@ const Notifications = {
           if (notif.icon) {
             mainChild.push(
               h(QIcon, {
-                staticClass: 'q-notification__icon col-auto',
+                staticClass: 'q-notification__icon',
                 attrs: { role: 'img' },
                 props: { name: notif.icon }
               })
@@ -376,7 +381,7 @@ const Notifications = {
         notif.actions !== void 0 && child.push(
           h('div', {
             staticClass: meta.actionsClass
-          }, notif.actions.map(a => h(QBtn, { props: a.props, on: a.on })))
+          }, notif.actions.map(a => h(QBtn, { props: a.props, attrs: a.attrs, on: a.on })))
         )
 
         meta.badge > 1 && child.push(
@@ -392,12 +397,37 @@ const Notifications = {
           ref: `notif_${meta.uid}`,
           key: meta.uid,
           staticClass: meta.staticClass,
-          attrs
+          attrs: meta.attrs
         }, [
           h('div', { staticClass: meta.wrapperClass }, child)
         ])
       }))
     }))
+  },
+
+  mounted () {
+    if (this.$q.fullscreen !== void 0 && this.$q.fullscreen.isCapable === true) {
+      const append = isFullscreen => {
+        const newParent = getBodyFullscreenElement(
+          isFullscreen,
+          this.$q.fullscreen.activeEl
+        )
+
+        if (this.$el.parentElement !== newParent) {
+          newParent.appendChild(this.$el)
+        }
+      }
+
+      this.unwatchFullscreen = this.$watch('$q.fullscreen.isActive', append)
+
+      if (this.$q.fullscreen.isActive === true) {
+        append(true)
+      }
+    }
+  },
+
+  beforeDestroy () {
+    this.unwatchFullscreen !== void 0 && this.unwatchFullscreen()
   }
 }
 
