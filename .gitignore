@@ -7,3 +7,4 @@ package-lock.json
 .vscode/settings.json
 *.tar.gz
 ui/yarn.lock
+**/yarn-error.log
