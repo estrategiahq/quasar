@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { menus, TOKEN } from '../constants'
+import { menus, TOKEN, VERTICAL } from '../constants'
 export default {
   data () {
     return {
@@ -56,6 +56,10 @@ export default {
         localStorage.setItem('email', payload.email)
         localStorage.setItem(TOKEN, payload.token)
         localStorage.setItem('acl', JSON.stringify(payload.acl))
+        resolve()
+      })
+      this.$bridger.$subscribe('event:vertical-change', payload => {
+        localStorage.setItem(VERTICAL, payload)
         resolve()
       })
     })

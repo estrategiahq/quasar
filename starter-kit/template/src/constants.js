@@ -10,6 +10,7 @@ export const events = {
   FILTER: 'filter'
 }
 
+export const VERTICAL = 'vertical'
 export const TOKEN = 'token'
 
 export const menus = [
